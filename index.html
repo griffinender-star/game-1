@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11252d">
+  <meta name="description" content="Pixel Dugout: touch-first arcade baseball. Time your swing, paint the corners, and take your club through a season.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <title>Pixel Dugout · Pocket Baseball</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Pixel Dugout home"><span class="brand-ball" aria-hidden="true">⚾</span><span><small>POCKET BASEBALL CLUB</small><b>PIXEL <em>DUGOUT</em></b></span></a>
+      <div class="header-tools"><span class="edition">EST. 1987 <i>★</i> ARCADE EDITION</span><button id="soundToggle" class="icon-btn" aria-label="Turn sound off" aria-pressed="true">♫</button><button id="helpBtn" class="icon-btn" aria-label="How to play">?</button></div>
+    </header>
+    <main>
+      <section class="screen active" id="screen-game" aria-label="Game day">
+        <div class="match-heading"><div><span class="eyebrow" id="seasonLabel">SEASON 01 / GAME 01</span><h1>SMALL SCREEN. <span>BIG LEAGUES.</span></h1></div><span class="record-chip" id="recordChip">0 W <i>·</i> 0 L</span></div>
+        <div class="game-layout">
+          <div class="play-column">
+            <div class="scoreboard">
+              <div class="team away"><span class="team-badge" id="awayBadge">B</span><div><small>VISITOR</small><b id="awayName">BOSTON</b></div><strong id="awayScore">0</strong></div>
+              <div class="score-center"><b id="inningLabel">▲ 1ST</b><span id="outsLabel">0 OUT</span><small id="gameLength">3 INNINGS</small></div>
+              <div class="team home"><strong id="homeScore">0</strong><div><small>YOUR CLUB</small><b>NEW YORK</b></div><span class="team-badge">N</span></div>
+            </div>
+            <div class="stadium-card">
+              <div class="stadium-top"><span><i class="live-dot"></i> KNIGHTS PARK <small> / DAY GAME</small></span><span class="mode-tag" id="modeTag">YOU'RE PITCHING</span></div>
+              <div class="canvas-wrap" id="fieldWrap">
+                <canvas id="gameCanvas" width="960" height="480" aria-label="Side-view baseball field. While pitching, drag the target near home plate to aim." role="img"></canvas>
+                <div id="playOverlay" class="play-overlay" aria-live="polite"><span id="overlayKicker">TAKE THE MOUND</span><strong id="overlayTitle">PAINT THE CORNERS.</strong></div>
+                <button class="aim-nudge" id="aimReset" aria-label="Center pitching target">⊕ CENTER AIM</button>
+              </div>
+              <div class="field-hud"><div class="count"><span>B <b id="balls">0</b></span><span>S <b id="strikes">0</b></span><span>O <b id="outs">0</b></span></div><span id="pitchInfo">FASTBALL · 93 MPH</span><div class="base-diamond" aria-label="Bases empty" id="baseDiamond"><i id="base2"></i><i id="base3"></i><i id="base1"></i></div></div>
+            </div>
+            <div class="controls-card" id="controlsCard">
+              <div class="control-heading"><div><span class="eyebrow" id="actionKicker">THE BALL IS IN YOUR HANDS</span><h2 id="actionTitle">Make your pitch.</h2></div><span class="hand-tag">TOUCH + PLAY</span></div>
+              <p id="controlHint">Drag the target to aim. Hold PITCH and release in the green.</p>
+              <div class="timing-wrap"><div class="timing-labels"><span id="meterLeft">RELEASE METER</span><span id="meterStatus">HOLD TO CHARGE</span></div><div class="timing-meter" id="timingMeter" role="img" aria-label="Pitch release meter"><div class="sweet-spot" id="sweetSpot"></div><div class="meter-needle" id="meterNeedle"></div></div></div>
+              <div class="play-buttons"><button id="mainAction" class="big-button"><span id="mainActionLabel">HOLD TO PITCH</span><small id="mainActionSub">RELEASE IN THE GREEN</small></button><button id="secondaryAction" class="secondary-button">SIM HALF <span>»</span></button></div>
+              <div class="tactics-row" id="tacticsRow" aria-label="Pitch types"></div>
+              <div class="result-strip" id="resultStrip" role="status"><span class="result-dot"></span><span id="resultText">Welcome to Knights Park. Your season starts here.</span></div>
+              <div class="utility-row"><button id="stealBtn">↗ STEAL</button><button id="subBtn">⇄ SUBS</button><button id="pauseBtn">Ⅱ PAUSE</button><span id="saveStatus">AUTO-SAVE ON</span></div>
+            </div>
+          </div>
+          <aside class="dugout-column">
+            <div class="player-card"><div class="card-heading"><span>THE MATCHUP</span><span id="matchupSide">TOP OF THE ORDER</span></div><div class="player-intro"><div class="portrait" aria-hidden="true"><span class="portrait-cap"></span><span class="portrait-face"></span><span class="portrait-shirt"></span><b id="playerNumber">01</b></div><div><span class="eyebrow" id="playerRole">AT THE PLATE</span><h3 id="batterName">Alex Rivera</h3><p id="batterPosition">CENTER FIELD · RHB</p><div class="stars" id="playerStars">★★★★☆</div></div></div><div class="skill-bars" id="skillBars"></div><div class="pitcher-label"><span>ON THE MOUND</span><b id="pitcherName">Nolan West</b></div></div>
+            <div class="mini-card"><div class="card-heading"><span>INNING BY INNING</span><span>R / H</span></div><div id="lineScore" class="table-scroll"></div></div>
+            <div class="mini-card radio-card"><div class="card-heading"><span>FROM THE BOOTH</span><span class="on-air">● ON AIR</span></div><div id="playLog" class="play-log" aria-live="off"><p>The grass is cut. The crowd is ready. Let's play ball.</p></div></div>
+            <div class="tip-card"><span>THE POCKET PLAYBOOK</span><p>Timing beats button mashing.<br>Wait for your pitch. Make it count.</p><button id="rulesLink">LEARN THE CONTROLS ↗</button></div>
+          </aside>
+        </div>
+      </section>
+      <section class="screen" id="screen-roster" aria-label="Clubhouse"><div class="page-heading"><span class="eyebrow">YOUR NINE. YOUR WAY.</span><h1>THE <span>CLUBHOUSE.</span></h1><p>Set your lineup before first pitch. Fresh arms win late innings.</p></div><div class="management-layout"><div class="mini-card"><div class="card-heading"><span>STARTING NINE</span><span>CONTACT / POWER</span></div><div id="rosterTable"></div></div><div><div class="mini-card"><div class="card-heading">PITCHING STAFF</div><div id="pitchingRoster"></div></div><div class="mini-card"><div class="card-heading">ON THE BENCH</div><div id="benchRoster"></div></div></div></div></section>
+      <section class="screen" id="screen-league" aria-label="Season"><div class="page-heading"><span class="eyebrow">TWELVE GAMES. ONE CLUB.</span><h1>THE <span>PENNANT RACE.</span></h1><p>A little baseball, wherever the day takes you.</p></div><div class="season-toolbar"><div class="record-chip" id="seasonRecord">0–0</div><button id="resetSeasonBtn" class="secondary-button">NEW SEASON ↻</button></div><div class="management-layout"><div class="mini-card"><div class="card-heading"><span>CLUB RECORDS</span><span>W / L</span></div><div id="standings"></div><p class="card-note">All four clubs play each round. Win the most games to lead the league.</p></div><div class="mini-card"><div class="card-heading"><span>YOUR SCHEDULE</span><span>12 GAMES</span></div><div id="schedule"></div></div></div></section>
+      <section class="screen" id="screen-rules" aria-label="How to play"><div class="page-heading"><span class="eyebrow">PICK UP & PLAY</span><h1>WELCOME TO <span>THE SHOW.</span></h1><p>One thumb. A little timing. A whole lot of baseball.</p></div><div class="rule-grid"><article><span>01 / AT BAT</span><h2>Wait. Watch. Swing.</h2><p>Tap READY FOR PITCH. Watch the ball travel to your batter on the left, then tap SWING when the timing needle reaches the green zone. Perfect timing means harder contact. Let outside pitches pass with TAKE.</p></article><article><span>02 / ON THE MOUND</span><h2>Find your corner.</h2><p>Drag the crosshair near the batter to aim. Hold PITCH to charge the meter, then release in the green for your best pitch. Aim outside the dotted strike zone to chase a swing, but risk a ball.</p></article><article><span>03 / QUICK BASEBALL</span><h2>Three innings. All heart.</h2><p>Quick games play three innings, with extra innings for ties. Choose nine innings when starting a new season. Four balls earn a walk; three strikes make an out; three outs switch sides.</p></article><article><span>04 / YOUR CLUB</span><h2>More than the bat.</h2><p>Reorder your lineup before the first pitch, bring in a fresh pitcher, or pinch-hit from the bench. Try a steal with a runner on first and second empty. SIM HALF fast-forwards the current half inning.</p></article><article><span>05 / PHONE READY</span><h2>A ballpark in your pocket.</h2><p>Play in portrait or landscape. Use your browser’s Add to Home Screen option for an app-like view. Progress saves in this browser. Offline play becomes available after loading once from a web server.</p></article><article><span>06 / KEYBOARD TOO</span><h2>Room for everyone.</h2><p>Space readies a pitch or swings. Hold and release Space to pitch. Arrow keys adjust pitching aim. Escape pauses or closes a dialog. Sound is optional, and reduced-motion settings are respected.</p></article></div></section>
+    </main>
+    <footer><span>PIXEL DUGOUT <i>★</i> MADE FOR THE LOVE OF THE GAME</span><span id="offlineStatus">NO ADS. JUST BASEBALL.</span></footer>
+  </div>
+  <nav class="bottom-nav" aria-label="Main navigation"><button data-screen="game" class="active" aria-current="page"><span>⚾</span>PLAY BALL</button><button data-screen="roster"><span>♟</span>CLUBHOUSE</button><button data-screen="league"><span>⚑</span>SEASON</button><button data-screen="rules"><span>▤</span>HOW TO PLAY</button></nav>
+  <div id="modalRoot" class="modal-root"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

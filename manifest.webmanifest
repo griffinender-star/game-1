@@ -1,0 +1,7 @@
+{
+  "id":"./", "name":"Pixel Dugout · Pocket Baseball", "short_name":"Pixel Dugout",
+  "description":"Touch-first arcade baseball. Your club, your swing, your season.",
+  "start_url":"./", "scope":"./", "display":"standalone", "orientation":"any",
+  "background_color":"#10232b", "theme_color":"#11252d",
+  "icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
+}
