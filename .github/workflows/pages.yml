@@ -1,7 +1,7 @@
-name: Publish Pixel Dugout
+name: Publish Pixel Dugout with Actions (optional)
+# The live site uses the gh-pages branch. Run npm run publish:pages for updates.
+# Enable this alternative only after changing Pages Source to GitHub Actions.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

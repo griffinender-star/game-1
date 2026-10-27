@@ -58,3 +58,4 @@ body{padding-top:env(safe-area-inset-top,0px)}
  body[data-screen="game"] #screen-game .dugout-column{display:none}
  body[data-screen="game"] .app-shell{padding-right:max(10px,env(safe-area-inset-right))}
 }
+@media(min-width:800px){.bottom-nav{gap:8px;width:calc(100% - 40px)}.bottom-nav button{min-width:0;flex:1;padding-inline:7px}}

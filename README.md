@@ -1,6 +1,6 @@
 # Pixel Dugout · Pocket Baseball
 
-An original touch-first, pixel-art baseball game inspired by classic pocket sports games. Time your swings, aim your pitches, and manage the New York Knights through a twelve-game season.
+An original touch-first, pixel-art baseball game inspired by classic pocket sports games. Create a manager, inherit a struggling New York Knights club, and rebuild it through drafts, trades, and player development. Play every pitch across twelve-game seasons.
 
 ## Run
 
@@ -33,26 +33,44 @@ Upload this directory to any static web host over HTTPS, then open that address 
 - Play in portrait or landscape. No keyboard or mouse is needed.
 - On HTTPS (or localhost for development), loading the game installs its offline cache. Wait for **OFFLINE READY** before disconnecting. Browser installation options vary.
 
-## Publish one link for iPhone, tablet, and computer
+## Update the published website
 
-The website is ready for GitHub Pages. Nothing has been published by the local build.
+The live game is at **https://griffinender-star.github.io/game-1/**. It uses GitHub Pages with **Deploy from a branch → gh-pages → / (root)**.
 
-1. In the `griffinender-star/game-1` GitHub repository, open **Settings → Pages** and set **Source** to **GitHub Actions**. Repository administration access is required for this setting.
-2. Once publication is authorized, push the game and `.github/workflows/pages.yml` to `main`, or run **Publish Pixel Dugout** from the Actions tab after the workflow is on GitHub.
-3. The workflow tests the rules, builds the clean `_site` directory, and publishes only the website files. Its deployment output supplies the real public address. Do not treat an expected Pages address as live before deployment succeeds.
-4. Open the published HTTPS address in Safari on iPhone/iPad or a browser on the computer. In Safari, use **Share → Add to Home Screen** to keep it like an app.
+After testing an update:
 
-Preview the exact publishing artifact locally with `npm run build:site`, then serve `_site` using a local web server. All asset paths and the offline cache work under the repository's `/game-1/` subpath. Publishing uses GitHub's built-in workflow token, not any game API key.
+```sh
+npm test
+npm run build:standalone
+npm run publish:pages
+```
+
+`publish:pages` builds the `_site` directory and updates only the public website files on `gh-pages`, using the existing Git authentication. It preserves the source checkout and staging area, never force-pushes, and skips unchanged content. GitHub's native Pages workflow then deploys the branch. Check its successful deployment before announcing the update. `node scripts/publish-pages.mjs --dry-run` reviews a prepared build without pushing.
+
+The optional manual workflow in `.github/workflows/pages.yml` is an alternative only for repositories whose Pages Source is set to GitHub Actions. It does not run automatically because this site currently publishes from `gh-pages`.
+
+All asset paths, career modules, and offline files support the `/game-1/` subpath. The public game needs no API credentials. Saved careers stay on each device, not in the repository.
+
+## Your manager career
+
+1. Choose **Create Your Manager**, enter a name, select a portrait and coaching style, and sign the contract. The Knights begin after a fictional 2–10 season with a genuinely weak 47 OVR roster.
+2. Rebuild from **Front Office → Draft Room / Trade Desk**. Draft picks replace a chosen player at no credit cost. Trades require an outgoing player plus club credits. Review the deal before confirming; the signed player's actual attributes immediately replace that roster slot.
+3. Roster moves lock while a game is underway and reopen after the final out. Each completed game earns credits, wins earn extra, and career goals award one-time bonuses.
+4. Complete twelve games and choose **Start Next Season**. Keep your manager, roster, and credits. Players develop toward their potential, the season enters your career log, and new draft picks and trade offers arrive.
+
+**Scout:** three opening draft picks (two in later seasons). **Developer:** +4 offseason ratings instead of +2, capped by player potential. **Tactician:** six extra starting credits. New managers otherwise receive two picks and 14 credits.
+
+Your manager, finances, roster, and game progress save together. Existing pre-career games can still be continued from the title screen. Replacing an existing career requires explicit confirmation.
 
 ## Controls
 
 - **Pitch:** drag the crosshair near the batter to aim. Hold the gold button and release in the green meter zone. Aim outside the dotted strike zone to tempt a chase. Poor release adds target error; tired pitchers lose command.
 - **Bat:** tap READY FOR PITCH, watch the ball move toward the batter on the left, then tap SWING when the meter reaches green. Timing directly controls contact quality. TAKE lets the ball pass. CONTACT favors putting the ball in play; POWER can send a well-timed swing out of the park.
 - **Manage:** reorder the lineup before the first pitch; use SUBS for a fresh arm or pinch hitter. Replaced players cannot return in the same game. STEAL is available with a runner on first and second empty.
-- **Quick games:** three innings by default, with extras for ties and walk-off wins. Choose nine innings when starting a new season. SIM HALF advances the current half inning.
+- **Quick games:** three innings by default, with extras for ties and walk-off wins. Choose three or nine innings when creating your manager. SIM HALF advances the current half inning.
 - **Keyboard:** Space readies/swings, or hold/release Space to pitch. Arrow keys adjust aim; Escape pauses. Buttons also support native keyboard activation.
 
-Gameplay pauses while a dialog is open or when backgrounded. Progress saves locally after each resolved play, when browser storage is available. Use the same browser and site address to resume; clearing site data removes the save. The new arcade version uses a separate v2 save and leaves older manager-mode saves untouched.
+Gameplay pauses while a dialog is open or when backgrounded. Progress saves locally after each resolved play, when browser storage is available. Use the same browser and site address to resume; clearing site data removes the save. Careers use the existing v2 save format with validated career data; older v1 saves remain untouched.
 
 ## Verify
 
@@ -60,8 +78,8 @@ Gameplay pauses while a dialog is open or when backgrounded. Progress saves loca
 npm test
 ```
 
-The dependency-free engine tests cover pitch outcomes, timing, runner advancement, innings, walk-offs, substitutions, steals, saves, and complete seasons. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including timed touch batting, hold/release pitching, pause/resume, saved games, and offline reload. Physical iOS and Android device testing remains recommended before public release.
+All 26 dependency-free engine tests cover baseball rules, manager creation, weak starting rosters, draft and trade eligibility, real player improvements, credits, save compatibility, and progression across complete careers. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including timed touch batting, hold/release pitching, pause/resume, saved games, and offline reload. Career browser checks cover creation, appearance/style, transaction confirmation/cancellation, drafted/traded players joining the lineup, persistent saves, offseason training, and offline career continuation at phone, tablet, and desktop sizes. Physical Apple-device testing remains unverified.
 
 ## Files
 
-`engine.js` contains baseball and season rules; `stadium.js` draws the original pixel-art field; `app.js` handles animation, touch/keyboard controls, and browser saves. `sw.js`, the manifest, and icons enable offline and home-screen support. There are no external asset, font, ad, or API dependencies. Runner advancement and fielding are intentionally simplified arcade rules.
+`career-ui.js` and `career.css` provide the title, manager creator, and front office. `engine.js` contains baseball and career rules; `stadium.js` draws the original pixel-art field; `app.js` handles animation, touch/keyboard controls, and browser saves. `sw.js`, the manifest, and icons enable offline and home-screen support. There are no external asset, font, ad, or API dependencies. Runner advancement and fielding are intentionally simplified arcade rules.
