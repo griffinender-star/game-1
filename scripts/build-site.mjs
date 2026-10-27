@@ -1,0 +1,10 @@
+import { mkdir, copyFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const output=path.join(root,'_site');
+const files=['index.html','app.js','engine.js','stadium.js','style.css','sw.js','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png'];
+await mkdir(output,{recursive:true});
+await Promise.all(files.map(name=>copyFile(path.join(root,name),path.join(output,name))));
+await writeFile(path.join(output,'.nojekyll'),'');
+console.log(`Static website prepared in _site (${files.length} files).`);

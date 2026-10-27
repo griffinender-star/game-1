@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11252d">
+  <meta name="description" content="Pixel Dugout: touch-first arcade baseball. Time your swing, paint the corners, and take your club through a season.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAGJklEQVR4nO3du5HcRhRG4Z+iEqC/LqvosJQCA1AKLPr0Nwr69FlMQQEwBXoKYNNQFQ2ohrN4bTduP+7tPsdUiQOg8W0DM4MBXr15+15EV/uj9wpQ7ABEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgBEpgD0Qk/fPvReBdcB6KxFD4ZOAtBh924wdBSA9tuKwdBuANrpyAqGtgFo3bkSDK0C0LNSfGDoPgD9Ll0Ghm4B6P9yTWBoCUDSVQ0YEoBkc4Ch2QHZBUxuaGpApfb9zIbmBVR2r09raFJA6fv74z9PxV9zpGYElKsHQydNB+ja3IOho+YCZDlyYWi3iQDZz3swtG0WQKXOmjG0agpAZd9zYei+8QHVeMeOoVuDA6qhJ/f/H9vQyIDq6cn9VwMbGhZQbT25/3ZUQ2MCaqMn9xWGNDQgoJZ6cl9nPEOjAWqvJ/fVBjM0FKBeenJfcyRD4wDqqyf3lYcxNAggD3pyX38MQyMA8qMndykDGAoPyJue3GVFN/Tqzdv3vdfheruj//rd59brkdN//37d/seHTz+ar0iZAs9A0f9274u7LVEBxR3xo4JuUUhAQcf6xSJuVzxAuaP88/GxynrUWXQ4Q8FOolPG93YSfb///vrypc4aHXa09N2T6FWBzqn/7L0CGaX/dXacdXZb1icd8dO3D1EMhTmEZc3t213VmNR2cblTYJRjWQxART4tbGbofEGDfcYY4Bzo8qeF9mngWpeXG/EzRu8zkOWvsMuBrLha5/OQa0DOx65ZnsfBL6Aio9Z4Eqp30HRryCmgguPVzFDtUy6fhjwC8jlSHnI4Mu4A1RijBpNQs3d83gz5AtRydAoaavwppStDjgBVvbaw8Xdh1xYX8TNGL4AaXJla6UBW9uAVzpALQD6va+5VLEP9AbXU0+BAVmQRgQx1BsTcc1QUQz0Boee8EIa6AUJPSv4N9QGEnvScG+oACD25eTbUGhB6ruXWUFNA6LHk01A7QOix59BQI0DoKZU3Qy0AoadsrgxVB4SeGvkxVB1Q+q9Svv/9UHNFhip9rGr/KqjFIQxDZfOjR81OojFUKld61PJtPIbsedOjxh8kYsiSQz1q/1UGhq7lU4+6fJmKodzc6lGvyzkwlJ5nPep4QRmGUnKuR30vaW1vqMvtXS7nX4+6X1TPPHRUCD3qDkgNDVX6+XqN3ytG0SMPgMQ89LxAeuQEkOobqnr3jIKTUCw98gNINQ11uW30hYWG0yNXgNRwXIr/xrnl3T/86JE3QKowOs1u/dTmXnqu9MghIPkbIz85HBmPgFRupBrfa7zqJORQj9wCUonxcvLIlSKr4VOPPANShVGLcn+gVW71yDkgGcau14MydhdkmYQ865F/QHI/glXzv+0BntazlP77ptfvPnecfm4drUPKEwuX/OtRoCcWPnz6kW5o2VVOTqJ1iW8IPQo0Ay1lPTN16efjY/vp52TRgz0zNRggJRhKeRZdx14EFEiPQpxEr4o1vrmF27p4gBRwlBOLuF0hASnmWJ8XdIuiAlLYEd8t7rYEBqTI435f6K2I9y5sm8N7WEW8tvBasWegJW/X5M+jR2MAkidDU+nRMIDkw9BsejQSIPU2NKEeDQZI/QzNqUfjAVIPQ9Pq0ZCA1NbQzHo0KiC1MjS5Hg0MSPUNoUdjA1JNQ+hZGhyQ6hhCz63xAam0IfTcNwUglTOEnlWzAFIJQ+jZNhEg2QyhZ7e5AOmqIfQcNR0g5RtCz0kjXJF4reLPgpxQj+acgZbK7u859WhmQCq316fVo8kBqcS+n1mPACSbgMn1CEBL1xygRwC6lasBPUsA+l26CfTcAtCzUmSg5z4ArTv3gZ5VANrpSAl6tgFov60V9OwW9buw4t9keSiiUWYgMgUgMgUgMgUgMgUgMgUgMgUgMgUgMhX1g0RyEjMQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmQIQmfoFwcvqe3IhXskAAAAASUVORK5CYII=">
+  <link rel="apple-touch-icon" href="data:image/png;base64,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">
+  <style>
+:root{--bg:#10232b;--panel:#19333c;--panel-dark:#10272f;--line:#33515a;--cream:#f8eed7;--muted:#a4bab9;--gold:#f5c66d;--green:#97d5a3;--red:#f08c78;--blue:#92cddb;--pixel-shadow:3px 3px 0 #07191f;color-scheme:dark;font-family:'Courier New',monospace}*{box-sizing:border-box}body{margin:0;min-width:320px;color:var(--cream);background:radial-gradient(ellipse at 50% -30%,#31515a88,transparent 65%),var(--bg);font-size:13px;line-height:1.5}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer;border:0;touch-action:manipulation}button:disabled{opacity:.38;cursor:default}button:focus-visible,a:focus-visible{outline:3px solid var(--cream);outline-offset:4px}button:hover:not(:disabled){filter:brightness(1.12)}button[hidden],[hidden]{display:none!important}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin:0}button{color:var(--cream)}.app-shell{max-width:1200px;margin:auto;padding:25px 32px 0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:23px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px}.brand-ball{width:47px;height:47px;display:grid;place-items:center;background:var(--gold);font-size:28px;border:3px solid var(--cream);box-shadow:var(--pixel-shadow);transform:rotate(-5deg)}.brand small{display:block;font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:3px}.brand b{display:block;font-size:26px;line-height:1;font-weight:900;letter-spacing:-1px}.brand em{font-style:normal;color:var(--gold)}.header-tools{display:flex;align-items:center;gap:10px}.edition{font-size:9px;letter-spacing:1px;color:var(--muted);margin-right:12px}.edition i{font-style:normal;color:var(--gold);padding:0 8px}.icon-btn{width:40px;height:40px;border:1px solid var(--line);background:var(--panel);font-weight:bold;font-size:20px}.match-heading{display:flex;justify-content:space-between;align-items:center;padding:24px 0 20px;gap:16px}.eyebrow{display:block;color:var(--gold);font-size:9px;font-weight:bold;letter-spacing:1.5px}h1{font-size:23px;letter-spacing:-1px;font-weight:900;line-height:1.25;margin-top:5px}h1 span{color:var(--gold)}.record-chip{font-weight:bold;font-size:12px;padding:9px 13px;background:#213d43;border:1px solid #4d6c67;color:var(--green);white-space:nowrap}.record-chip i{font-style:normal;color:#678c8a;margin:0 5px}.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px}.play-column{min-width:0}.scoreboard{display:grid;grid-template-columns:1fr 84px 1fr;align-items:center;padding:15px 19px;background:#0b2027;border:1px solid var(--line);border-bottom:3px solid var(--gold);margin-bottom:14px;gap:10px}.team{display:flex;gap:11px;align-items:center;min-width:0}.team-badge{flex-shrink:0;width:36px;height:40px;display:grid;place-items:center;background:#b65e53;border:2px solid #e6c9ad;box-shadow:2px 2px #0004;font-size:22px;font-weight:bold;clip-path:polygon(0 0,100% 0,100% 82%,50% 100%,0 82%)}.team.home .team-badge{background:#4e91a0}.team small{display:block;color:#8fa9aa;font-size:8px;letter-spacing:1px}.team b{font-size:12px;white-space:nowrap}.team strong{font-size:35px;line-height:1;font-variant-numeric:tabular-nums;margin-left:auto;color:var(--cream)}.team.home strong{margin-left:0;margin-right:auto}.team.home{text-align:right}.score-center{text-align:center;line-height:1.45}.score-center b{display:block;font-size:12px;color:var(--gold)}.score-center span{display:block;font-size:9px;color:var(--muted)}.score-center small{display:block;font-size:7px;color:#688d92;letter-spacing:1px}.stadium-card{border:1px solid #52675c;box-shadow:0 5px 0 #081c23;overflow:hidden}.stadium-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#1c3438;color:#e6e1be;font-size:9px;font-weight:bold;letter-spacing:.7px}.stadium-top small{color:#87a4a0;font-size:8px}.live-dot{display:inline-block;width:6px;height:6px;background:var(--green);box-shadow:0 0 6px #97d5a355;margin-right:5px}.mode-tag{color:var(--gold);font-size:8px}.canvas-wrap{position:relative;line-height:0;touch-action:none;overflow:hidden;background:#78b9c6}canvas{display:block;width:100%;height:auto;aspect-ratio:2/1;image-rendering:pixelated;user-select:none;-webkit-user-select:none}.play-overlay{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:1;transition:opacity .15s;line-height:1.3;background:linear-gradient(transparent 20%,#0d292d44 60%,transparent);text-shadow:2px 3px #183f3c}.play-overlay.hidden{opacity:0}.play-overlay span{font-size:9px;color:#fff8da;font-weight:bold;letter-spacing:3px;background:#15343cc9;padding:5px 10px}.play-overlay strong{font-size:clamp(18px,2.5vw,32px);font-weight:900;letter-spacing:-1px;color:#fff3c8;background:#15343cc9;padding:3px 13px 7px}.aim-nudge{position:absolute;bottom:9px;right:10px;min-height:32px;background:#173437df;border:1px solid #b8d8ba66;font-size:8px;padding:5px 8px}.field-hud{background:#102a2e;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 14px;line-height:1}.count{display:flex;gap:16px;color:#8ba9a5;font-size:10px;font-weight:bold}.count b{color:var(--cream);margin-left:4px;font-size:14px}#pitchInfo{font-size:8px;letter-spacing:1px;color:var(--green)}.base-diamond{position:relative;width:30px;height:22px;margin-right:5px}.base-diamond i{position:absolute;width:9px;height:9px;background:#36534c;border:1px solid #719288;transform:rotate(45deg)}#base2{left:10px;top:0}#base3{left:0;top:10px}#base1{left:20px;top:10px}.base-diamond i.on{background:var(--gold);border-color:#ffe9b0;box-shadow:0 0 7px #f5c66d55}.controls-card{margin-top:19px;padding:17px;background:var(--panel);border:1px solid var(--line)}.control-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}.control-heading h2{font-size:22px;letter-spacing:-.7px;margin-top:3px}.control-heading .eyebrow{font-size:8px;letter-spacing:1.1px}.hand-tag{border:1px solid #527166;color:var(--green);font-size:8px;padding:5px 7px;white-space:nowrap}#controlHint{font-size:10px;color:var(--muted);margin-top:5px;min-height:15px}.timing-wrap{margin-top:15px}.timing-labels{display:flex;justify-content:space-between;color:#8eaeab;font-size:8px;letter-spacing:.7px;margin-bottom:6px}.timing-labels span:last-child{color:var(--gold)}.timing-meter{height:14px;position:relative;background:repeating-linear-gradient(90deg,#0e242c 0 9%,#27404a 9% 10%);border:1px solid #49656a;overflow:hidden}.sweet-spot{position:absolute;left:65%;width:20%;top:0;height:100%;background:#75b888;border-inline:2px solid #b6e4aa}.meter-needle{position:absolute;left:0;top:-2px;width:4px;height:18px;background:#fff6d7;box-shadow:0 0 4px #fff8}.play-buttons{display:grid;grid-template-columns:1fr 115px;gap:10px;margin-top:13px}.big-button{min-height:62px;background:var(--gold);color:#243532;font-size:16px;font-weight:900;letter-spacing:1px;box-shadow:0 4px #a57e40;touch-action:none;user-select:none;-webkit-user-select:none}.big-button small{display:block;font-size:8px;font-weight:bold;letter-spacing:1.2px;margin-top:2px;opacity:.7}.big-button.holding{background:#a6dbab;transform:translateY(2px);box-shadow:0 2px #527b56}.secondary-button{border:1px solid #557174;background:#27454d;padding:12px;color:var(--cream);font-size:10px;font-weight:bold;min-height:48px}.secondary-button span{font-size:18px;padding-left:5px}.tactics-row{display:flex;gap:7px;margin-top:15px}.tactic{flex:1;min-height:39px;background:#122a33;border:1px solid #3b5a61;color:#9eb9b9;font-size:9px;font-weight:bold;white-space:nowrap;padding:6px}.tactic.active{border-color:#a4c2a6;color:var(--green);background:#28473f;box-shadow:inset 0 -2px #85b78b}.result-strip{display:flex;align-items:flex-start;gap:8px;font-size:10px;color:#d9e4d1;margin-top:15px;padding-top:13px;border-top:1px solid #35515b;min-height:38px}.result-dot{width:5px;height:5px;flex-shrink:0;background:var(--gold);margin-top:5px}.utility-row{display:flex;align-items:center;gap:10px;margin-top:8px}.utility-row button{font-size:9px;color:var(--muted);padding:6px 3px;min-height:36px;background:transparent}.utility-row span{margin-left:auto;font-size:7px;letter-spacing:.8px;color:#7faaa0}.dugout-column{display:flex;flex-direction:column;gap:15px;min-width:0}.player-card,.mini-card{background:var(--panel);border:1px solid var(--line)}.card-heading{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-bottom:1px solid var(--line);color:#d9dfc9;font-size:9px;font-weight:bold;letter-spacing:.8px}.card-heading span:last-child{font-size:7px;color:#8faeae}.player-intro{display:flex;align-items:center;gap:13px;padding:18px 15px 12px}.portrait{position:relative;width:59px;height:66px;flex-shrink:0;background:#6e9994;overflow:hidden;box-shadow:3px 3px #071e25}.portrait-face{position:absolute;left:17px;top:18px;width:25px;height:27px;background:#e3b48a;box-shadow:4px 0 #b68663}.portrait-cap{position:absolute;left:13px;top:10px;width:32px;height:15px;background:#e1c279;z-index:2;box-shadow:8px 10px 0 -3px #e1c279}.portrait-shirt{position:absolute;width:43px;height:27px;top:45px;left:8px;background:#355e72;box-shadow:inset 7px 0 #254959,inset -7px 0 #254959}.portrait b{position:absolute;top:48px;left:23px;z-index:3;font-size:11px;color:#e9dab5}.player-intro .eyebrow{font-size:7px;letter-spacing:1px}.player-intro h3{font-size:16px;line-height:1.2;margin-top:5px}.player-intro p{font-size:7px;color:var(--muted);margin-top:3px}.stars{font-size:15px;letter-spacing:2px;color:var(--gold);margin-top:3px}.skill-bars{padding:0 15px 14px}.skill-row{display:flex;align-items:center;gap:10px;font-size:8px;color:var(--muted);margin-top:8px}.skill-row>span{width:53px}.skill-track{height:5px;flex:1;background:#0b242c}.skill-track i{display:block;height:100%;background:#87b4a5}.skill-row b{font-size:9px;color:#cbd9c5;width:20px;text-align:right}.pitcher-label{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;background:#122a33;font-size:8px;border-top:1px solid var(--line)}.pitcher-label span{color:#8aa9ab;font-size:7px}.table-scroll{overflow-x:auto;padding:10px}.line-table{border-collapse:collapse;width:100%;text-align:center;font-size:10px}.line-table th{font-size:8px;color:#8ba9aa;font-weight:normal}.line-table td,.line-table th{padding:6px 5px}.line-table td{border-top:1px solid #34515a}.line-table td:first-child,.line-table th:first-child{text-align:left;color:#e3c58b;font-weight:bold}.line-table td.total{color:var(--gold);background:#243e42;font-weight:bold}.on-air{color:var(--green)!important}.play-log{max-height:180px;overflow:auto;padding:4px 13px;font-size:10px;color:#a6bfba;scrollbar-width:thin}.play-log p{padding:11px 0;border-bottom:1px dashed #35545b}.play-log p:last-child{border:0}.play-log b{display:block;color:var(--gold);font-size:8px;margin-bottom:3px}.tip-card{padding:10px 2px;color:#809e9f;font-size:9px}.tip-card>span{font-size:8px;letter-spacing:1px;color:#abc2b5}.tip-card p{margin-top:8px;line-height:1.8}.tip-card button{font-size:8px;color:var(--gold);background:transparent;padding:0;min-height:36px;letter-spacing:.5px}footer{display:flex;justify-content:space-between;gap:15px;font-size:7px;letter-spacing:1px;color:#7f9a9e;padding:25px 0 20px}footer i{color:var(--gold);font-style:normal;padding:0 5px}.bottom-nav{display:flex;justify-content:center;gap:35px;max-width:1136px;margin:0 auto;padding:0 20px 15px;border-top:1px solid var(--line)}.bottom-nav button{display:flex;align-items:center;justify-content:center;gap:9px;background:transparent;padding:16px 18px 10px;color:#87a4a8;font-size:9px;font-weight:bold;letter-spacing:.7px;border-top:2px solid transparent}.bottom-nav button span{font-size:18px;line-height:1}.bottom-nav button.active{color:var(--gold);border-top-color:var(--gold)}.screen{display:none}.screen.active{display:block}.page-heading{padding:27px 0}.page-heading h1{font-size:32px}.page-heading p{margin-top:9px;color:var(--muted);font-size:11px}.management-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}.management-layout>div>.mini-card{margin-bottom:18px}.roster-player{display:grid;grid-template-columns:20px 1fr 60px 100px;gap:8px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}.roster-player>span{color:var(--gold);font-size:10px}.roster-player b{font-size:12px}.roster-player small{display:block;color:var(--muted);font-size:8px}.roster-player .ratings{font-size:10px;color:var(--green)}.move-buttons{display:flex;gap:5px}.move-buttons button,.tiny-button{min-width:44px;min-height:44px;background:#28474d;border:1px solid #4d6e6e;color:#dfd8bc;font-size:11px}.staff-player,.bench-player,.schedule-game{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:13px}.staff-player b,.bench-player b{font-size:12px}.staff-player small,.bench-player small{display:block;color:var(--muted);font-size:9px}.staff-player>span{font-size:8px;color:var(--green)}.bench-player>span{font-size:10px;color:var(--green)}.season-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.standings-table{width:100%;border-collapse:collapse;font-size:11px;text-align:left}.standings-table th{color:var(--muted);font-size:9px;padding:12px}.standings-table td{padding:14px 12px;border-top:1px solid var(--line)}.standings-table td:not(:first-child),.standings-table th:not(:first-child){text-align:center}.standings-table tr.mine{background:#284740;color:var(--green)}.schedule-game{font-size:11px}.schedule-game .num{color:var(--gold);font-size:10px}.schedule-game b{flex:1}.schedule-game small{display:block;color:var(--muted);font-size:8px}.schedule-game>span:last-child{font-size:10px;color:var(--green)}.schedule-game.current{background:#29443f}.card-note{font-size:9px;color:var(--muted);padding:12px}.rule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.rule-grid article{padding:23px;background:var(--panel);border:1px solid var(--line)}.rule-grid article>span{font-size:9px;color:var(--gold);letter-spacing:1px}.rule-grid h2{font-size:20px;line-height:1.2;margin:13px 0}.rule-grid p{font-size:11px;color:#b5c8c3;line-height:1.8}.modal-root:empty{display:none}.modal-root{position:fixed;inset:0;z-index:50;background:#04161ce8;display:grid;place-items:center;padding:20px;backdrop-filter:blur(5px)}.modal{background:var(--panel);border:2px solid #648078;box-shadow:7px 7px #03161a;width:min(480px,100%);max-height:85vh;max-height:85dvh;overflow:auto}.modal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:17px;border-bottom:1px solid var(--line)}.modal-heading h2{font-size:20px;color:var(--gold)}.modal-close{width:44px;height:44px;background:#2b4d52;font-size:19px}.modal-body{padding:20px;font-size:12px;color:#bed1c8;line-height:1.8}.modal-body h3{font-size:11px;color:var(--gold);margin:15px 0 7px}.modal-actions{display:flex;gap:10px;margin-top:18px}.modal-actions button{flex:1;min-height:50px;font-size:11px}.modal-body .big-button{font-size:12px;min-height:52px;width:100%;margin-top:12px}.sub-item{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:12px}.sub-item small{display:block;color:var(--muted);font-size:9px}.modal-body select{background:#112a33;color:var(--cream);padding:12px;font:inherit;border:1px solid #6b8883;min-height:48px;width:100%;margin-top:8px}.install-note{font-size:10px;margin-top:18px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}
+@media(min-width:800px){.bottom-nav{position:relative}.bottom-nav button{min-width:150px}}
+@media(max-width:1000px){.app-shell{padding:20px}.game-layout{grid-template-columns:minmax(0,1fr) 250px;gap:15px}.team{gap:7px}.team-badge{width:29px;height:34px;font-size:18px}.team b{font-size:10px}.scoreboard{padding:14px 12px;grid-template-columns:1fr 66px 1fr}.edition{display:none}.player-intro{gap:10px;padding:14px 11px}.player-intro h3{font-size:14px}.skill-bars{padding-inline:11px}.rule-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:799px){body{padding-bottom:calc(69px + env(safe-area-inset-bottom))}.app-shell{padding:14px 14px 0}.topbar{padding-bottom:13px}.brand-ball{width:35px;height:35px;font-size:21px;border-width:2px}.brand{gap:10px}.brand small{font-size:6px;letter-spacing:2px}.brand b{font-size:22px}.header-tools{gap:6px}.icon-btn{width:36px;height:36px;font-size:18px}.match-heading{padding:16px 0 13px}.match-heading .eyebrow{font-size:8px}h1{font-size:16px;letter-spacing:-.6px}.record-chip{font-size:9px;padding:6px 8px}.game-layout{display:block}.scoreboard{padding:12px 14px;margin-bottom:12px;grid-template-columns:1fr 65px 1fr}.team-badge{width:28px;height:33px;font-size:18px}.team b{font-size:10px}.team strong{font-size:30px}.team small{font-size:6px}.team{gap:8px}.score-center b{font-size:11px}.score-center span{font-size:8px}.stadium-top{font-size:8px;padding:8px 10px}.mode-tag{font-size:7px}.stadium-top small{font-size:7px}.field-hud{padding:9px 12px}.controls-card{margin-top:14px;padding:14px}.control-heading h2{font-size:20px}.control-heading .eyebrow{font-size:7px}.hand-tag{font-size:7px}#controlHint{font-size:10px;margin-top:5px;min-height:30px}.timing-wrap{margin-top:7px}.play-buttons{margin-top:11px;grid-template-columns:1fr 97px}.big-button{min-height:58px;font-size:16px}.secondary-button{font-size:9px}.tactics-row{margin-top:13px;gap:6px}.tactic{font-size:8px;min-height:44px}.result-strip{font-size:10px;margin-top:11px;padding-top:10px;min-height:36px}.utility-row{margin-top:3px}.utility-row button{min-height:40px}.dugout-column{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.player-card{grid-column:1/-1}.player-card .player-intro{float:left;width:55%;padding:16px 12px}.skill-bars{margin-left:55%;padding:13px 13px 15px 0;min-height:98px}.pitcher-label{clear:both}.radio-card{grid-column:1/-1}.mini-card{min-width:0}.dugout-column>.mini-card:not(.radio-card){grid-column:1/-1}.play-log{max-height:140px}.tip-card{display:none}.bottom-nav{position:fixed;z-index:20;bottom:0;left:0;right:0;margin:0;gap:0;background:#0d232bf5;backdrop-filter:blur(12px);padding:0 max(4px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(4px,env(safe-area-inset-left));border-top:1px solid #4a6668}.bottom-nav button{flex:1;flex-direction:column;gap:5px;font-size:7px;padding:10px 2px;min-height:64px;letter-spacing:.5px}.bottom-nav button span{font-size:19px}.bottom-nav button.active{background:#233c3c55}.bottom-nav button.active span{filter:drop-shadow(0 0 5px #f5c66d44)}footer{font-size:6px;line-height:1.8;padding:20px 0;flex-wrap:wrap;gap:3px}.management-layout{grid-template-columns:1fr;gap:14px}.page-heading{padding:23px 0}.page-heading h1{font-size:26px}.rule-grid{grid-template-columns:1fr;gap:12px}.rule-grid article{padding:20px}.aim-nudge{min-height:36px}.play-overlay strong{font-size:21px}.play-overlay span{font-size:7px;letter-spacing:2px}}
+@media(max-width:380px){.app-shell{padding-inline:10px}.brand b{font-size:20px}.brand small{letter-spacing:1.5px}.brand-ball{width:31px;height:31px;font-size:19px}.icon-btn{width:32px;height:34px}.team{gap:5px}.scoreboard{padding:11px 10px;grid-template-columns:1fr 60px 1fr}.team strong{font-size:27px}.team b{font-size:9px}.team-badge{width:24px;height:29px;font-size:16px}.match-heading h1{font-size:14px}.record-chip{font-size:8px}.hand-tag{display:none}.controls-card{padding:12px}.control-heading h2{font-size:19px}#pitchInfo{font-size:7px}.stadium-top small{display:none}.player-intro h3{font-size:12px}.roster-player{grid-template-columns:15px 1fr 48px 92px;padding:10px 8px;gap:5px}.roster-player b{font-size:11px}.play-overlay strong{font-size:18px}}
+@media(max-width:799px) and (orientation:landscape){.app-shell{padding:8px max(12px,env(safe-area-inset-left))}.topbar{padding-bottom:8px}.match-heading{padding:10px 0}.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:12px}.play-column{display:contents}.scoreboard{grid-column:1/-1;margin-bottom:0;padding-block:8px}.stadium-card{align-self:start}.controls-card{margin:0;padding:10px}.controls-card .control-heading .eyebrow,.hand-tag{display:none}.controls-card h2{font-size:16px}#controlHint{font-size:8px;min-height:24px}.play-buttons{grid-template-columns:1fr 70px;gap:5px}.big-button{min-height:48px;font-size:13px}.big-button small{font-size:6px}.secondary-button{font-size:8px;padding:8px}.tactic{font-size:7px;min-height:38px;padding:4px}.tactics-row{gap:4px;margin-top:10px}.result-strip{font-size:8px}.utility-row{gap:8px}.utility-row button{font-size:8px;min-height:32px}.utility-row span{font-size:6px}.dugout-column{grid-column:1/-1;margin-top:0}.bottom-nav button{min-height:52px;padding:6px;flex-direction:row}.bottom-nav{padding-bottom:env(safe-area-inset-bottom)}body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(orientation:landscape) and (max-height:500px) and (max-width:1100px){
+ body{padding-bottom:calc(49px + env(safe-area-inset-bottom))}
+ body[data-screen="game"] .topbar,body[data-screen="game"] .match-heading,body[data-screen="game"] .dugout-column,body[data-screen="game"] footer{display:none}
+ .app-shell{padding:7px max(10px,env(safe-area-inset-left)) 0;max-width:none}
+ body[data-screen="game"] .game-layout{display:grid;grid-template-columns:minmax(0,1fr) 282px;gap:8px 12px}
+ body[data-screen="game"] .play-column{display:contents}
+ body[data-screen="game"] .scoreboard{grid-column:1;grid-row:1;margin:0;padding:6px 12px;min-height:48px;grid-template-columns:1fr 65px 1fr}
+ body[data-screen="game"] .score-center small{display:none}
+ body[data-screen="game"] .team strong{font-size:25px}
+ body[data-screen="game"] .team-badge{height:29px;width:25px;font-size:16px}
+ body[data-screen="game"] .stadium-card{grid-column:1;grid-row:2;align-self:start}
+ body[data-screen="game"] .stadium-top{padding:6px 10px;font-size:7px}
+ body[data-screen="game"] canvas{width:100%;height:calc(100vh - 172px);height:calc(100dvh - 172px);aspect-ratio:auto}
+ body[data-screen="game"] .field-hud{padding:7px 12px;min-height:26px}
+ body[data-screen="game"] .controls-card{grid-column:2;grid-row:1/span 2;margin:0;padding:11px;align-self:stretch}
+ body[data-screen="game"] .control-heading .eyebrow,body[data-screen="game"] .hand-tag{display:none}
+ body[data-screen="game"] .control-heading h2{font-size:17px;margin:0}
+ body[data-screen="game"] #controlHint{font-size:8px;min-height:25px;margin-top:3px}
+ body[data-screen="game"] .timing-wrap{margin-top:9px}
+ body[data-screen="game"] .timing-labels{font-size:7px}
+ body[data-screen="game"] .play-buttons{grid-template-columns:1fr 73px;gap:6px;margin-top:10px}
+ body[data-screen="game"] .big-button{min-height:50px;font-size:13px}
+ body[data-screen="game"] .big-button small{font-size:6px}
+ body[data-screen="game"] .secondary-button{font-size:8px;padding:6px}
+ body[data-screen="game"] .tactics-row{gap:4px;margin-top:11px}
+ body[data-screen="game"] .tactic{font-size:7px;min-height:40px;padding:4px}
+ body[data-screen="game"] .result-strip{font-size:9px;min-height:39px;margin-top:9px;padding-top:8px}
+ body[data-screen="game"] .utility-row{margin-top:1px;gap:7px;flex-wrap:wrap}
+ body[data-screen="game"] .utility-row button{font-size:8px;min-height:34px}
+ body[data-screen="game"] .utility-row span{font-size:6px}
+ .bottom-nav{position:fixed;inset:auto 0 0;display:flex;gap:0;background:#0d232b;border-top:1px solid var(--line);padding:0 10px env(safe-area-inset-bottom)}
+ .bottom-nav button{flex:1;flex-direction:row;gap:8px;padding:7px;min-width:0;min-height:47px;font-size:8px}.bottom-nav button span{font-size:17px}
+}
+
+/* Keep the pitch, field and swing button together on tablets and computers. */
+@media(min-width:800px){
+ #screen-game .game-layout{grid-template-columns:minmax(0,1fr) 340px}
+ #screen-game .play-column{display:contents}
+ #screen-game .scoreboard{grid-column:1;grid-row:1;margin:0}
+ #screen-game .stadium-card{grid-column:1;grid-row:2;align-self:start}
+ #screen-game .controls-card{grid-column:2;grid-row:1/span 2;margin:0;align-self:stretch}
+ #screen-game .dugout-column{grid-column:1/-1;grid-row:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
+ #screen-game .tip-card{display:none}
+}
+@media(min-width:800px) and (max-width:1000px){
+ #screen-game .game-layout{grid-template-columns:minmax(0,1fr) 300px}
+}
+body{padding-top:env(safe-area-inset-top,0px)}
+@media(orientation:landscape) and (max-height:500px) and (max-width:1100px){
+ body[data-screen="game"] #screen-game .game-layout{grid-template-columns:minmax(0,1fr) 282px;gap:8px 12px}
+ body[data-screen="game"] #screen-game .dugout-column{display:none}
+ body[data-screen="game"] .app-shell{padding-right:max(10px,env(safe-area-inset-right))}
+}
+
+.file-notice{padding:18px;background:#f5c66d;color:#11252d;font:15px/1.5 sans-serif}.file-notice b{display:block}
+</style>
+  <title>Pixel Dugout · Pocket Baseball</title>
+</head>
+<body>
+<div id="fileNotice" class="file-notice"><b>Open in a web browser to play.</b>This is an interactive game. File preview apps may disable games. On iPhone, Files only previews HTML; use a hosted version in Safari.</div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Pixel Dugout home"><span class="brand-ball" aria-hidden="true">⚾</span><span><small>POCKET BASEBALL CLUB</small><b>PIXEL <em>DUGOUT</em></b></span></a>
+      <div class="header-tools"><span class="edition">EST. 1987 <i>★</i> ARCADE EDITION</span><button id="soundToggle" class="icon-btn" aria-label="Turn sound off" aria-pressed="true">♫</button><button id="helpBtn" class="icon-btn" aria-label="How to play">?</button></div>
+    </header>
+    <main>
+      <section class="screen active" id="screen-game" aria-label="Game day">
+        <div class="match-heading"><div><span class="eyebrow" id="seasonLabel">SEASON 01 / GAME 01</span><h1>SMALL SCREEN. <span>BIG LEAGUES.</span></h1></div><span class="record-chip" id="recordChip">0 W <i>·</i> 0 L</span></div>
+        <div class="game-layout">
+          <div class="play-column">
+            <div class="scoreboard">
+              <div class="team away"><span class="team-badge" id="awayBadge">B</span><div><small>VISITOR</small><b id="awayName">BOSTON</b></div><strong id="awayScore">0</strong></div>
+              <div class="score-center"><b id="inningLabel">▲ 1ST</b><span id="outsLabel">0 OUT</span><small id="gameLength">3 INNINGS</small></div>
+              <div class="team home"><strong id="homeScore">0</strong><div><small>YOUR CLUB</small><b>NEW YORK</b></div><span class="team-badge">N</span></div>
+            </div>
+            <div class="stadium-card">
+              <div class="stadium-top"><span><i class="live-dot"></i> KNIGHTS PARK <small> / DAY GAME</small></span><span class="mode-tag" id="modeTag">YOU'RE PITCHING</span></div>
+              <div class="canvas-wrap" id="fieldWrap">
+                <canvas id="gameCanvas" width="960" height="480" aria-label="Side-view baseball field. While pitching, drag the target near home plate to aim." role="img"></canvas>
+                <div id="playOverlay" class="play-overlay" aria-live="polite"><span id="overlayKicker">TAKE THE MOUND</span><strong id="overlayTitle">PAINT THE CORNERS.</strong></div>
+                <button class="aim-nudge" id="aimReset" aria-label="Center pitching target">⊕ CENTER AIM</button>
+              </div>
+              <div class="field-hud"><div class="count"><span>B <b id="balls">0</b></span><span>S <b id="strikes">0</b></span><span>O <b id="outs">0</b></span></div><span id="pitchInfo">FASTBALL · 93 MPH</span><div class="base-diamond" aria-label="Bases empty" id="baseDiamond"><i id="base2"></i><i id="base3"></i><i id="base1"></i></div></div>
+            </div>
+            <div class="controls-card" id="controlsCard">
+              <div class="control-heading"><div><span class="eyebrow" id="actionKicker">THE BALL IS IN YOUR HANDS</span><h2 id="actionTitle">Make your pitch.</h2></div><span class="hand-tag">TOUCH + PLAY</span></div>
+              <p id="controlHint">Drag the target to aim. Hold PITCH and release in the green.</p>
+              <div class="timing-wrap"><div class="timing-labels"><span id="meterLeft">RELEASE METER</span><span id="meterStatus">HOLD TO CHARGE</span></div><div class="timing-meter" id="timingMeter" role="img" aria-label="Pitch release meter"><div class="sweet-spot" id="sweetSpot"></div><div class="meter-needle" id="meterNeedle"></div></div></div>
+              <div class="play-buttons"><button id="mainAction" class="big-button"><span id="mainActionLabel">HOLD TO PITCH</span><small id="mainActionSub">RELEASE IN THE GREEN</small></button><button id="secondaryAction" class="secondary-button">SIM HALF <span>»</span></button></div>
+              <div class="tactics-row" id="tacticsRow" aria-label="Pitch types"></div>
+              <div class="result-strip" id="resultStrip" role="status"><span class="result-dot"></span><span id="resultText">Welcome to Knights Park. Your season starts here.</span></div>
+              <div class="utility-row"><button id="stealBtn">↗ STEAL</button><button id="subBtn">⇄ SUBS</button><button id="pauseBtn">Ⅱ PAUSE</button><span id="saveStatus">AUTO-SAVE ON</span></div>
+            </div>
+          </div>
+          <aside class="dugout-column">
+            <div class="player-card"><div class="card-heading"><span>THE MATCHUP</span><span id="matchupSide">TOP OF THE ORDER</span></div><div class="player-intro"><div class="portrait" aria-hidden="true"><span class="portrait-cap"></span><span class="portrait-face"></span><span class="portrait-shirt"></span><b id="playerNumber">01</b></div><div><span class="eyebrow" id="playerRole">AT THE PLATE</span><h3 id="batterName">Alex Rivera</h3><p id="batterPosition">CENTER FIELD · RHB</p><div class="stars" id="playerStars">★★★★☆</div></div></div><div class="skill-bars" id="skillBars"></div><div class="pitcher-label"><span>ON THE MOUND</span><b id="pitcherName">Nolan West</b></div></div>
+            <div class="mini-card"><div class="card-heading"><span>INNING BY INNING</span><span>R / H</span></div><div id="lineScore" class="table-scroll"></div></div>
+            <div class="mini-card radio-card"><div class="card-heading"><span>FROM THE BOOTH</span><span class="on-air">● ON AIR</span></div><div id="playLog" class="play-log" aria-live="off"><p>The grass is cut. The crowd is ready. Let's play ball.</p></div></div>
+            <div class="tip-card"><span>THE POCKET PLAYBOOK</span><p>Timing beats button mashing.<br>Wait for your pitch. Make it count.</p><button id="rulesLink">LEARN THE CONTROLS ↗</button></div>
+          </aside>
+        </div>
+      </section>
+      <section class="screen" id="screen-roster" aria-label="Clubhouse"><div class="page-heading"><span class="eyebrow">YOUR NINE. YOUR WAY.</span><h1>THE <span>CLUBHOUSE.</span></h1><p>Set your lineup before first pitch. Fresh arms win late innings.</p></div><div class="management-layout"><div class="mini-card"><div class="card-heading"><span>STARTING NINE</span><span>CONTACT / POWER</span></div><div id="rosterTable"></div></div><div><div class="mini-card"><div class="card-heading">PITCHING STAFF</div><div id="pitchingRoster"></div></div><div class="mini-card"><div class="card-heading">ON THE BENCH</div><div id="benchRoster"></div></div></div></div></section>
+      <section class="screen" id="screen-league" aria-label="Season"><div class="page-heading"><span class="eyebrow">TWELVE GAMES. ONE CLUB.</span><h1>THE <span>PENNANT RACE.</span></h1><p>A little baseball, wherever the day takes you.</p></div><div class="season-toolbar"><div class="record-chip" id="seasonRecord">0–0</div><button id="resetSeasonBtn" class="secondary-button">NEW SEASON ↻</button></div><div class="management-layout"><div class="mini-card"><div class="card-heading"><span>CLUB RECORDS</span><span>W / L</span></div><div id="standings"></div><p class="card-note">All four clubs play each round. Win the most games to lead the league.</p></div><div class="mini-card"><div class="card-heading"><span>YOUR SCHEDULE</span><span>12 GAMES</span></div><div id="schedule"></div></div></div></section>
+      <section class="screen" id="screen-rules" aria-label="How to play"><div class="page-heading"><span class="eyebrow">PICK UP & PLAY</span><h1>WELCOME TO <span>THE SHOW.</span></h1><p>One thumb. A little timing. A whole lot of baseball.</p></div><div class="rule-grid"><article><span>01 / AT BAT</span><h2>Wait. Watch. Swing.</h2><p>Tap READY FOR PITCH. Watch the ball travel to your batter on the left, then tap SWING when the timing needle reaches the green zone. Perfect timing means harder contact. Let outside pitches pass with TAKE.</p></article><article><span>02 / ON THE MOUND</span><h2>Find your corner.</h2><p>Drag the crosshair near the batter to aim. Hold PITCH to charge the meter, then release in the green for your best pitch. Aim outside the dotted strike zone to chase a swing, but risk a ball.</p></article><article><span>03 / QUICK BASEBALL</span><h2>Three innings. All heart.</h2><p>Quick games play three innings, with extra innings for ties. Choose nine innings when starting a new season. Four balls earn a walk; three strikes make an out; three outs switch sides.</p></article><article><span>04 / YOUR CLUB</span><h2>More than the bat.</h2><p>Reorder your lineup before the first pitch, bring in a fresh pitcher, or pinch-hit from the bench. Try a steal with a runner on first and second empty. SIM HALF fast-forwards the current half inning.</p></article><article><span>05 / PHONE READY</span><h2>A ballpark in your pocket.</h2><p>Play in portrait or landscape. Open this single file in a browser that supports local HTML. Progress saves in this browser. All graphics and game code are included; no connection is needed.</p></article><article><span>06 / KEYBOARD TOO</span><h2>Room for everyone.</h2><p>Space readies a pitch or swings. Hold and release Space to pitch. Arrow keys adjust pitching aim. Escape pauses or closes a dialog. Sound is optional, and reduced-motion settings are respected.</p></article></div></section>
+    </main>
+    <footer><span>PIXEL DUGOUT <i>★</i> MADE FOR THE LOVE OF THE GAME</span><span id="offlineStatus">NO ADS. JUST BASEBALL.</span></footer>
+  </div>
+  <nav class="bottom-nav" aria-label="Main navigation"><button data-screen="game" class="active" aria-current="page"><span>⚾</span>PLAY BALL</button><button data-screen="roster"><span>♟</span>CLUBHOUSE</button><button data-screen="league"><span>⚑</span>SEASON</button><button data-screen="rules"><span>▤</span>HOW TO PLAY</button></nav>
+  <div id="modalRoot" class="modal-root"></div>
+  <script>
+(() => {
+'use strict';
+const {BaseballGame,teams,roster,pitchers}=(() => {
+// Pure baseball rules and season state. Rendering and input live in app.js.
+const teams = [
+  { id: 0, name: 'New York Knights', short: 'NYK', city: 'NEW YORK', mascot: 'KNIGHTS', color: '#55b5d0' },
+  { id: 1, name: 'Boston Comets', short: 'BOS', city: 'BOSTON', mascot: 'COMETS', color: '#e96c5b' },
+  { id: 2, name: 'Chicago Foxes', short: 'CHI', city: 'CHICAGO', mascot: 'FOXES', color: '#eeae54' },
+  { id: 3, name: 'Los Angeles Stars', short: 'LAX', city: 'LOS ANGELES', mascot: 'STARS', color: '#a489db' },
+];
+const names = ['Alex Rivera', 'Sam Brooks', 'Jordan Hayes', 'Casey Morgan', 'Taylor Reed', 'Jamie Park', 'Drew Carter', 'Riley Stone', 'Chris Vega', 'Lee Walker', 'Max Quinn', 'Jesse Cole'];
+const positions = ['CF', 'SS', '1B', 'RF', '3B', 'LF', '2B', 'C', 'DH', 'OF', 'IF', 'C'];
+const roster = names.map((name, id) => ({ id, name, pos: positions[id], contact: 65 + (id * 13) % 29, power: 60 + (id * 17) % 35, speed: 62 + (id * 11) % 30 }));
+const pitchers = [
+  { id: 0, name: 'Nolan West', control: 82, velocity: 89 },
+  { id: 1, name: 'Eli Turner', control: 88, velocity: 78 },
+  { id: 2, name: 'Finn Ross', control: 74, velocity: 94 },
+];
+const visitorNames = [
+  ['Ben Foster', 'Noah Price', 'Milo Green', 'Owen King', 'Evan Scott', 'Theo Ford', 'Luke Blair', 'Cole Nash', 'Ace Bell'],
+  ['Luis Diaz', 'Nico Cruz', 'Jack Moore', 'Leo Young', 'Henry Fox', 'Miles Hart', 'Jude Lane', 'Ryan Lake', 'Kai Nash'],
+  ['Zane Hill', 'Jett Adams', 'Cal Reed', 'Finn Ray', 'Eli Woods', 'Ari Stone', 'Beau Smith', 'Ian Chase', 'Dax Grey'],
+];
+const visitorPitchers = [
+  { id: 0, name: 'Oscar Grant', control: 78, velocity: 86 },
+  { id: 0, name: 'Marco Silva', control: 83, velocity: 90 },
+  { id: 0, name: 'Dean Pierce', control: 81, velocity: 88 },
+];
+const visitorRosters = visitorNames.map((names, team) => names.map((name, id) => ({ id, name, pos: positions[id], contact: 63 + ((id + team) * 9) % 29, power: 62 + ((id + team) * 7) % 32, speed: 64 + (id * 7) % 28 })));
+const clamp = n => Math.max(0, Math.min(1, Number.isFinite(n) ? n : 0));
+const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max;
+const validArray = (array, length, check) => Array.isArray(array) && array.length === length && array.every(check);
+function newGame(game = 0, results = [], order = roster.slice(0, 9).map(p => p.id), innings = 3, leagueRecords = teams.map(() => ({ w: 0, l: 0 }))) {
+  return { version: 2, game, results, order: [...order], innings, inning: 1, half: 0, outs: 0, balls: 0, strikes: 0, bases: [false, false, false], score: [0, 0], hits: [0, 0], lines: [Array(innings).fill(null), Array(innings).fill(null)], bats: [0, 0], pitches: [0, 0], pitchers: [0, 0], usedPitchers: [0], usedBatters: [...order], over: false, log: [], started: false, leagueRecords };
+}
+function validState(s) {
+  if (!s || s.version !== 2 || ![3, 9].includes(s.innings)) return false;
+  if (!integer(s.game, 0, 11) || !integer(s.inning, 1, 10000) || !integer(s.half, 0, 1) || !integer(s.outs, 0, 3) || !integer(s.balls, 0, 3) || !integer(s.strikes, 0, 2)) return false;
+  if (!validArray(s.order, 9, n => integer(n, 0, 11)) || new Set(s.order).size !== 9 || !validArray(s.bases, 3, n => typeof n === 'boolean')) return false;
+  for (const field of ['score', 'hits', 'bats', 'pitches']) if (!validArray(s[field], 2, n => integer(n, 0, 1000000))) return false;
+  if (!validArray(s.pitchers, 2, n => integer(n, 0, 2)) || !Array.isArray(s.usedPitchers) || !s.usedPitchers.every(n => integer(n, 0, 2)) || !Array.isArray(s.usedBatters) || !s.usedBatters.every(n => integer(n, 0, 11))) return false;
+  if (!validArray(s.lines, 2, a => Array.isArray(a) && a.length >= s.innings && a.every(n => n === null || integer(n, 0, 1000000)))) return false;
+  if (!Array.isArray(s.results) || s.results.length !== s.game + (s.over ? 1 : 0) || !s.results.every(r => integer(r.opponent, 1, 3) && validArray(r.score, 2, n => integer(n, 0, 1000000)) && typeof r.win === 'boolean')) return false;
+  if (!Array.isArray(s.log) || !s.log.every(l => typeof l.text === 'string' && typeof l.label === 'string' && typeof l.type === 'string')) return false;
+  return typeof s.over === 'boolean' && typeof s.started === 'boolean' && validArray(s.leagueRecords, 4, r => integer(r.w, 0, 100) && integer(r.l, 0, 100));
+}
+class BaseballGame {
+  constructor(savedState = null, { rng = Math.random, innings = 3 } = {}) {
+    this.rng = rng;
+    this.state = validState(savedState) ? JSON.parse(JSON.stringify(savedState)) : newGame(0, [], undefined, innings === 9 ? 9 : 3);
+  }
+  get opponent() { return teams[1 + this.state.game % 3]; }
+  get isBatting() { return this.state.half === 1; }
+  get gameOver() { return this.state.over; }
+  get batter() { const s = this.state; return this.isBatting ? roster[s.order[s.bats[1] % 9]] : visitorRosters[this.opponent.id - 1][s.bats[0] % 9]; }
+  get pitcher() { return this.isBatting ? visitorPitchers[this.opponent.id - 1] : pitchers[this.state.pitchers[1]]; }
+  get lineup() { return this.state.order.map(id => roster[id]); }
+  get availableBench() { return roster.filter(p => !this.state.usedBatters.includes(p.id)); }
+  get availablePitchers() { return pitchers.filter(p => !this.state.usedPitchers.includes(p.id)); }
+  get standings() { return teams.map((t, i) => ({ ...t, ...this.state.leagueRecords[i] })).sort((a, b) => b.w - a.w || a.l - b.l || a.id - b.id); }
+  serialize() { return JSON.stringify(this.state); }
+  _random() { return clamp(this.rng()); }
+  _ensureLine() { const s = this.state; while (s.lines[0].length < s.inning) { s.lines[0].push(null); s.lines[1].push(null); } if (s.lines[s.half][s.inning - 1] === null) s.lines[s.half][s.inning - 1] = 0; }
+  _run() { this._ensureLine(); this.state.score[this.state.half]++; this.state.lines[this.state.half][this.state.inning - 1]++; }
+  _advance(n) { const s = this.state; for (let i = 2; i >= 0; i--) if (s.bases[i]) { s.bases[i] = false; if (i + n >= 3) this._run(); else s.bases[i + n] = true; } if (n === 4) this._run(); else s.bases[n - 1] = true; }
+  _walk() { const s = this.state; if (s.bases[0]) { if (s.bases[1]) { if (s.bases[2]) this._run(); s.bases[2] = true; } s.bases[1] = true; } s.bases[0] = true; }
+  _finish() {
+    const s = this.state; if (s.over) return;
+    s.over = true;
+    const win = s.score[1] > s.score[0], opponent = this.opponent.id;
+    s.results.push({ opponent, score: [...s.score], win });
+    s.leagueRecords[0][win ? 'w' : 'l']++;
+    s.leagueRecords[opponent][win ? 'l' : 'w']++;
+    // Every round also completes the match between the two other clubs.
+    const others = teams.filter(t => t.id !== 0 && t.id !== opponent);
+    const otherWinner = this._random() < .5 ? 0 : 1;
+    s.leagueRecords[others[otherWinner].id].w++;
+    s.leagueRecords[others[1 - otherWinner].id].l++;
+  }
+  _endHalf() {
+    const s = this.state;
+    if (s.inning >= s.innings && ((s.half === 0 && s.score[1] > s.score[0]) || (s.half === 1 && s.score[0] !== s.score[1]))) { this._finish(); return; }
+    if (s.half === 1) s.inning++;
+    s.half = 1 - s.half; s.outs = 0; s.balls = 0; s.strikes = 0; s.bases = [false, false, false];
+  }
+  _endAtBat() {
+    const s = this.state; s.balls = 0; s.strikes = 0; s.bats[s.half]++;
+    if (s.half === 1 && s.inning >= s.innings && s.score[1] > s.score[0]) this._finish();
+    else if (s.outs === 3) this._endHalf();
+  }
+  _event(type, label, text, before, scoreBefore, extra = {}) {
+    const s = this.state;
+    const event = { type, label, text, quality: 0, bases: 0, scored: s.score[before.half] - scoreBefore, before, inningChanged: s.half !== before.half || s.inning !== before.inning, gameOver: s.over, ...extra };
+    s.log.unshift({ ...event, message: text, tag: `${before.half ? 'BOT' : 'TOP'} ${before.inning}`, important: ['single','double','triple','homerun','walk','strikeout','stolen','caught'].includes(type) });
+    s.log = s.log.slice(0, 60);
+    return event;
+  }
+  _blocked(text) { return { type: 'blocked', label: 'NOT AVAILABLE', text, scored: 0, bases: 0, quality: 0, before: { half: this.state.half, inning: this.state.inning }, inningChanged: false, gameOver: this.state.over }; }
+  resolvePitch({ swing = false, quality = 0, inZone = true, pitchQuality = .5, power = false } = {}) {
+    const s = this.state; if (s.over) return this._blocked('This game is complete.');
+    this._ensureLine(); s.started = true; s.pitches[1 - s.half]++;
+    const before = { half: s.half, inning: s.inning }, scoreBefore = s.score[s.half], name = this.batter.name;
+    let q = clamp(quality);
+    if (!this.isBatting) {
+      const fatigue = Math.max(0, s.pitches[1] - 50) * .003;
+      const command = Math.max(0, clamp(pitchQuality) - fatigue);
+      swing = this._random() < (inZone ? .76 : .29 - command * .18);
+      q = this._random() * (.98 - command * .60);
+      power = this._random() < .35;
+    }
+    if (!swing) {
+      if (!inZone) {
+        s.balls++;
+        if (s.balls === 4) { this._walk(); this._endAtBat(); return this._event('walk', 'BALL FOUR', `${name} takes a walk.`, before, scoreBefore); }
+        return this._event('ball', `BALL ${s.balls}`, 'Outside the zone. Ball.', before, scoreBefore);
+      }
+      return this._strike(name, before, scoreBefore, false);
+    }
+    if (!inZone) q = Math.max(0, q - .18);
+    if (q < .22) return this._strike(name, before, scoreBefore, true, q);
+    if (q < .40) { s.strikes = Math.min(2, s.strikes + 1); return this._event('foul', 'FOUL BALL', `${name} fouls it back.`, before, scoreBefore, { quality: q }); }
+    let bases = 0;
+    if (q >= .92) bases = power ? 4 : this._random() < .2 ? 3 : 2;
+    else if (q >= .76) bases = power && q >= .85 && this._random() < .40 ? 4 : this._random() < .55 ? 2 : 1;
+    else if (this._random() < (q >= .58 ? .50 + this.batter.contact * .002 : .24)) bases = 1;
+    if (bases) {
+      s.hits[s.half]++; this._advance(bases); this._endAtBat();
+      const type = ['', 'single', 'double', 'triple', 'homerun'][bases], label = ['', 'SINGLE', 'DOUBLE', 'TRIPLE', 'HOME RUN!'][bases];
+      return this._event(type, label, `${name} connects — ${label.toLowerCase().replace('!', '')}!`, before, scoreBefore, { bases, quality: q });
+    }
+    s.outs++; this._endAtBat();
+    return this._event('out', q >= .60 ? 'FLY OUT' : 'GROUND OUT', `${name} ${q >= .60 ? 'flies out to center' : 'grounds out to shortstop'}.`, before, scoreBefore, { quality: q });
+  }
+  _strike(name, before, scoreBefore, swinging, quality = 0) {
+    const s = this.state; s.strikes++;
+    if (s.strikes === 3) { s.outs++; this._endAtBat(); return this._event('strikeout', 'STRIKE THREE!', `${name} strikes out ${swinging ? 'swinging' : 'looking'}.`, before, scoreBefore, { quality }); }
+    return this._event('strike', `STRIKE ${s.strikes}`, swinging ? 'Swing and a miss!' : 'Called strike.', before, scoreBefore, { quality });
+  }
+  simPitch() {
+    const inZone = this._random() < .68;
+    return this.resolvePitch({ inZone, swing: this._random() < (inZone ? .76 : .20), quality: this._random(), power: this._random() < .35, pitchQuality: this._random() * .7 });
+  }
+  simHalf() {
+    const s = this.state, half = s.half, inning = s.inning; let event = null, count = 0;
+    while (!s.over && s.half === half && s.inning === inning && count++ < 600) event = this.simPitch();
+    return event;
+  }
+  steal() {
+    const s = this.state; if (s.over || !this.isBatting || !s.bases[0] || s.bases[1]) return this._blocked('Steal with a runner on first and second base empty.');
+    const before = { half: s.half, inning: s.inning }, scoreBefore = s.score[s.half]; s.bases[0] = false; s.started = true;
+    if (this._random() < .68) { s.bases[1] = true; return this._event('stolen', 'STOLEN BASE!', 'The runner slides safely into second.', before, scoreBefore); }
+    s.outs++; if (s.outs === 3) this._endHalf();
+    return this._event('caught', 'CAUGHT STEALING', 'The catcher throws the runner out at second.', before, scoreBefore);
+  }
+  reorder(index, delta) {
+    const s = this.state, target = index + delta;
+    if (s.started || !integer(index, 0, 8) || ![-1, 1].includes(delta) || !integer(target, 0, 8)) return false;
+    [s.order[index], s.order[target]] = [s.order[target], s.order[index]];
+    return true;
+  }
+  substitutePitcher(id) {
+    const s = this.state; if (s.over || !this.availablePitchers.some(p => p.id === id)) return false;
+    s.pitchers[1] = id; s.usedPitchers.push(id); s.pitches[1] = 0; return true;
+  }
+  substituteBatter(id) {
+    const s = this.state; if (s.over || !this.availableBench.some(p => p.id === id)) return false;
+    s.order[s.bats[1] % 9] = id; s.usedBatters.push(id); return true;
+  }
+  nextGame() {
+    const s = this.state; if (!s.over || s.game >= 11) return false;
+    this.state = newGame(s.game + 1, s.results, s.order, s.innings, s.leagueRecords); return true;
+  }
+  reset(innings = this.state.innings) { this.state = newGame(0, [], undefined, innings === 9 ? 9 : 3); }
+}
+
+return {BaseballGame,teams,roster,pitchers};
+})();
+const {Stadium,FIELD}=(() => {
+/** A self-contained pixel stadium. All coordinates use the 960 × 480 field. */
+const FIELD = Object.freeze({
+  width: 960,
+  height: 480,
+  release: { x: 662, y: 302 },
+  plate: { x: 182, y: 336 },
+  zone: { x: 151, y: 275, w: 62, h: 77 },
+});
+
+const C = {
+  sky: '#70c8d0', skyLight: '#a3dfdc', cloud: '#e8f3d4', cloudShade: '#c9e9dc',
+  distant: '#66abb3', distantDark: '#57959f', navy: '#17384b', dark: '#143441',
+  grass: '#72a94c', grassDark: '#609742', grassLight: '#7eb34f', grassShade: '#568b3c',
+  dirt: '#cc9566', dirtLight: '#dfad7b', dirtDark: '#b77c55', chalk: '#efe4bb',
+  home: '#f3cb70', homeShade: '#c6974a', away: '#e6795c', awayShade: '#ba5748',
+  skin: '#e4ac80', skinShade: '#b47e59', white: '#f7eed3', pants: '#e7dfbf',
+};
+
+class Stadium {
+  constructor(canvas) {
+    this.canvas = canvas;
+    canvas.width = FIELD.width;
+    canvas.height = FIELD.height;
+    this.ctx = canvas.getContext('2d');
+    this.ctx.imageSmoothingEnabled = false;
+    this.background = canvas.ownerDocument.createElement('canvas');
+    this.background.width = FIELD.width;
+    this.background.height = FIELD.height;
+    this.buildBackground(this.background.getContext('2d'));
+  }
+
+  rect(c, x, y, w, h, color) {
+    c.fillStyle = color;
+    c.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  }
+
+  poly(c, points, color) {
+    c.fillStyle = color;
+    c.beginPath();
+    points.forEach(([x, y], i) => i ? c.lineTo(Math.round(x), Math.round(y)) : c.moveTo(Math.round(x), Math.round(y)));
+    c.closePath();
+    c.fill();
+  }
+
+  text(c, text, x, y, size = 14, color = C.white, align = 'left') {
+    c.fillStyle = color;
+    c.textAlign = align;
+    c.font = `900 ${size}px monospace`;
+    c.fillText(text, Math.round(x), Math.round(y));
+  }
+
+  cloud(c, x, y, scale = 1) {
+    c.save();
+    c.translate(x, y);
+    c.scale(scale, scale);
+    this.rect(c, 0, 15, 101, 14, C.cloudShade);
+    this.rect(c, 8, 7, 79, 17, C.cloud);
+    this.rect(c, 24, 0, 37, 14, C.cloud);
+    this.rect(c, 85, 17, 19, 8, C.cloud);
+    c.restore();
+  }
+
+  buildBackground(c) {
+    // Wide bands preserve the feel of a tiny console palette.
+    this.rect(c, 0, 0, 960, 480, C.sky);
+    this.rect(c, 0, 70, 960, 51, '#83d1d3');
+    this.rect(c, 0, 121, 960, 53, C.skyLight);
+    this.rect(c, 803, 33, 42, 34, '#f5e9a0');
+    this.rect(c, 795, 41, 58, 18, '#f5e9a0');
+    this.cloud(c, 74, 35, 1.15);
+    this.cloud(c, 359, 60, .7);
+    this.cloud(c, 625, 23, 1.25);
+    this.cloud(c, 881, 81, .6);
+
+    // City roofs beyond the ballpark.
+    for (let i = 0; i < 24; i++) {
+      const x = i * 43 - 8;
+      const h = 30 + ((i * 31) % 62);
+      this.rect(c, x, 156 - h, 32 + i % 3 * 5, h, i % 3 ? C.distant : C.distantDark);
+      if (i % 4 === 0) {
+        this.rect(c, x + 9, 148 - h, 15, 8, C.distantDark);
+        this.rect(c, x + 15, 132 - h, 3, 16, C.distantDark);
+      }
+      for (let j = 0; j < 3; j++) {
+        this.rect(c, x + 6 + j * 8, 165 - h, 4, 6, '#a3d4cc');
+        this.rect(c, x + 6 + j * 8, 182 - h, 4, 6, '#a3d4cc');
+      }
+    }
+    // Floodlight pylons, drawn in distinct chunky steps.
+    [42, 905].forEach(x => {
+      this.rect(c, x + 17, 47, 5, 150, '#517d83');
+      this.rect(c, x + 11, 52, 17, 3, '#3f6873');
+      this.rect(c, x - 3, 29, 47, 25, C.navy);
+      this.rect(c, x, 32, 41, 19, '#42626b');
+      for (let k = 0; k < 5; k++) for (let row = 0; row < 2; row++) {
+        this.rect(c, x + 3 + k * 7, 35 + row * 8, 5, 5, '#f5e6ad');
+      }
+      for (let k = 0; k < 5; k++) this.rect(c, x + 13, 65 + k * 24, 14, 3, '#385f6b');
+    });
+
+    // The grandstand: stepped seating, varied fans, and a dark canopy edge.
+    this.poly(c, [[0, 150], [960, 150], [960, 216], [0, 216]], '#2d5a64');
+    this.rect(c, 0, 147, 960, 7, '#54787d');
+    const crowd = ['#e2bd79', '#e99470', '#69b6be', '#eadfc0', '#d87e69', '#94c07e'];
+    for (let row = 0; row < 4; row++) {
+      this.rect(c, 0, 161 + row * 13, 960, 3, '#143e4c');
+      for (let j = 0; j < 77; j++) {
+        const x = j * 13 + (row % 2) * 6;
+        const y = 152 + row * 13;
+        this.rect(c, x + 4, y, 4, 4, '#d8ac80');
+        this.rect(c, x + 2, y + 4, 8, 6, crowd[(j * 17 + row * 11) % crowd.length]);
+        if (j % 11 === 0) this.rect(c, x, y + 4, 2, 3, crowd[j % crowd.length]);
+      }
+    }
+    [227, 485, 739].forEach(x => {
+      this.rect(c, x, 151, 14, 62, '#668181');
+      for (let j = 0; j < 6; j++) this.rect(c, x, 156 + j * 9, 14, 3, '#a0b6a6');
+    });
+    this.rect(c, 0, 207, 960, 39, '#1d5961');
+    this.rect(c, 0, 207, 960, 5, '#e9d18d');
+    this.rect(c, 0, 244, 960, 7, '#244d3c');
+    this.sign(c, 23, 216, 134, 22, 'NIGHT OWL', '#e9c06d', C.navy);
+    this.sign(c, 172, 216, 185, 22, 'KNIGHTS BASEBALL', '#163f4d', '#d9e6bc');
+    this.sign(c, 371, 216, 127, 22, 'PLAY IT LOUD', '#dc775c', '#fff1cc');
+    this.sign(c, 512, 216, 168, 22, 'PIXEL ATHLETICS', '#e0d6aa', '#224b5b');
+    this.sign(c, 695, 216, 142, 22, 'GOOD SPORT', '#80b4a5', '#163e4c');
+    this.text(c, '400', 893, 235, 15, '#f0dc9d', 'center');
+
+    // Perspective field stripes and scalloped far edge.
+    this.rect(c, 0, 251, 960, 229, C.grass);
+    for (let i = 0; i < 8; i++) {
+      const left = i * 143 - 220;
+      this.poly(c, [[i * 125, 251], [i * 125 + 64, 251], [left + 140, 480], [left, 480]], i % 2 ? C.grassDark : C.grassLight);
+    }
+    this.rect(c, 0, 251, 960, 7, C.grassShade);
+    // Distant fielders.
+    this.player(c, 322, 270, C.away, { small: true });
+    this.player(c, 835, 274, C.away, { small: true });
+    this.player(c, 512, 266, C.away, { small: true });
+    // Dirt baseline and home-plate area.
+    this.poly(c, [[0, 415], [142, 321], [960, 366], [960, 438], [151, 372], [30, 480], [0, 480]], C.dirt);
+    this.poly(c, [[0, 423], [147, 332], [960, 381], [960, 399], [151, 352], [0, 450]], C.dirtLight);
+    this.poly(c, [[0, 469], [155, 365], [960, 424], [960, 438], [151, 372], [30, 480], [0, 480]], C.dirtDark);
+    // Faint square grit, generated deterministically, never random flicker.
+    for (let i = 0; i < 130; i++) {
+      const x = (i * 137 + 29) % 960;
+      const y = 341 + ((i * 43) % 69);
+      if (y > 339 + x * .053 && y < 367 + x * .065) this.rect(c, x, y, 3, 2, i % 2 ? '#bf865a' : '#e0ab75');
+    }
+    // Chalk and pitcher's mound.
+    this.poly(c, [[175, 353], [960, 400], [960, 403], [174, 356]], C.chalk);
+    this.poly(c, [[175, 353], [0, 475], [0, 480], [176, 357]], C.chalk);
+    this.poly(c, [[619, 345], [629, 329], [670, 321], [708, 329], [726, 345], [709, 355], [635, 353]], C.dirt);
+    this.rect(c, 644, 336, 30, 4, '#f3e4b8');
+    this.poly(c, [[170, 349], [185, 349], [185, 356], [177, 362], [170, 356]], '#fff4d5');
+    this.poly(c, [[129, 348], [158, 350], [159, 375], [130, 373]], '#ead1a0');
+    this.poly(c, [[132, 351], [155, 353], [156, 372], [133, 370]], C.dirt);
+    this.rect(c, 0, 462, 960, 18, '#315e36');
+    this.rect(c, 0, 460, 960, 3, '#7ca65d');
+    this.text(c, 'KNIGHTS FIELD', 928, 449, 13, '#d7d89b', 'right');
+    this.text(c, 'EST. 1987', 928, 465, 9, '#b5c389', 'right');
+  }
+
+  sign(c, x, y, w, h, label, bg, fg) {
+    this.rect(c, x, y, w, h, bg);
+    this.rect(c, x + 2, y + 2, w - 4, 1, fg);
+    this.text(c, label, x + w / 2, y + h - 6, label.length > 14 ? 10 : 12, fg, 'center');
+  }
+
+  player(c, x, y, color, opts = {}) {
+    const { small = false, pitcher = false, swing = -1, time = 0, throwing = false, catcher = false } = opts;
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    if (small) c.scale(.5, .5);
+    const bob = !small && Math.sin(time / 390) > .9 ? -1 : 0;
+    c.translate(0, bob);
+    this.rect(c, -14, -2, 34, 5, '#284b3e66');
+    const shade = color === C.home ? C.homeShade : C.awayShade;
+    if (catcher) {
+      this.rect(c, -14, -17, 12, 14, C.pants);
+      this.rect(c, 6, -17, 12, 14, C.pants);
+      this.rect(c, -15, -4, 13, 5, C.navy);
+      this.rect(c, 7, -4, 15, 5, C.navy);
+      this.rect(c, -10, -39, 24, 25, color);
+      this.rect(c, -5, -37, 13, 23, C.navy);
+      this.rect(c, -9, -52, 22, 16, C.skin);
+      this.rect(c, -11, -56, 24, 7, C.navy);
+      this.rect(c, -9, -48, 24, 3, '#3c5660');
+      this.rect(c, -9, -40, 24, 3, '#3c5660');
+      this.rect(c, 14, -33, 16, 10, '#8e643f');
+      c.restore();
+      return;
+    }
+    // Cleats, trouser legs and a three-pixel stripe.
+    this.rect(c, -10, -26, 10, 23, C.pants);
+    this.rect(c, 5, -26, 10, 23, C.pants);
+    this.rect(c, -10, -26, 3, 21, '#c4c8ae');
+    this.rect(c, 12, -26, 3, 21, '#c4c8ae');
+    this.rect(c, -13, -5, 14, 6, C.navy);
+    this.rect(c, 5, -5, 17, 6, C.navy);
+    this.rect(c, -12, -52, 28, 29, color);
+    this.rect(c, -12, -52, 7, 29, shade);
+    this.rect(c, -10, -27, 24, 4, C.navy);
+    this.rect(c, 2, -47, 3, 19, '#ffefc1');
+    this.rect(c, 8, -43, 4, 7, '#ffefc1');
+    this.rect(c, -6, -59, 17, 10, C.skinShade);
+    this.rect(c, -8, -72, 23, 17, C.skin);
+    this.rect(c, -9, -74, 25, 9, C.navy);
+    this.rect(c, pitcher ? -16 : 12, -68, 11, 4, C.navy);
+    this.rect(c, pitcher ? -7 : 10, -61, 3, 3, C.navy);
+    if (small) {
+      this.rect(c, -19, -48, 9, 19, shade);
+      this.rect(c, 15, -48, 9, 19, color);
+      this.rect(c, -21, -33, 12, 11, '#8e643f');
+      this.rect(c, 16, -31, 9, 8, C.skin);
+    } else if (pitcher) {
+      const arm = throwing ? -11 : 1;
+      this.rect(c, -20, -49 + arm, 12, 9, shade);
+      this.rect(c, -27, -46 + arm, 12, 8, C.skin);
+      this.rect(c, 14, -46, 10, 18, color);
+      this.rect(c, -14, -46, 11, 12, '#88613f');
+      if (throwing) {
+        this.rect(c, -35, -57, 14, 7, C.skin);
+        this.rect(c, -40, -60, 7, 8, C.skin);
+      }
+    } else {
+      this.rect(c, 14, -49, 9, 16, color);
+      this.rect(c, 16, -35, 13, 7, C.skin);
+      this.rect(c, -16, -48, 9, 16, shade);
+      this.rect(c, -12, -36, 29, 7, C.skin);
+      c.save();
+      c.translate(21, -35);
+      const angle = swing < 0 ? -.45 : -.45 + Math.sin(Math.min(1, swing) * Math.PI) * 2.6;
+      c.rotate(angle);
+      this.rect(c, -3, -51, 7, 35, '#e1bd72');
+      this.rect(c, -2, -17, 5, 23, '#ae794c');
+      this.rect(c, -1, -50, 2, 28, '#f2d792');
+      c.restore();
+      if (swing > 0 && swing < .8) {
+        c.strokeStyle = '#f8df9e';
+        c.globalAlpha = .5;
+        c.lineWidth = 3;
+        c.beginPath();
+        c.arc(17, -33, 45, -1.3, 1.2);
+        c.stroke();
+      }
+    }
+    c.restore();
+  }
+
+  ball(c, x, y, size = 7) {
+    x = Math.round(x); y = Math.round(y);
+    this.rect(c, x - size / 2 + 1, y - size / 2 - 1, size - 2, size + 2, '#fff5d7');
+    this.rect(c, x - size / 2 - 1, y - size / 2 + 1, size + 2, size - 2, '#fff5d7');
+    this.rect(c, x + 1, y - 2, 2, 2, '#d46f56');
+  }
+
+  /** Paint one frame. `aim`, `ball`, and hit trajectories use FIELD coordinates. */
+  draw(scene = {}) {
+    const c = this.ctx;
+    const { time = 0, phase = 'ready', offense = false, progress = 0, ball = null,
+      swingProgress = -1, aim = null, hit = null } = scene;
+    c.clearRect(0, 0, 960, 480);
+    c.drawImage(this.background, 0, 0);
+    // Small moving pennants add life without blurring the pixel art.
+    [82, 862].forEach((x, i) => {
+      this.rect(c, x, 106, 3, 43, '#537f83');
+      const flutter = Math.floor(time / 240 + i) % 2 ? 3 : 0;
+      this.poly(c, [[x + 3, 107], [x + 26, 110 + flutter], [x + 3, 120]], C.home);
+    });
+    const pitcherColor = offense ? C.away : C.home;
+    const batterColor = offense ? C.home : C.away;
+    this.player(c, 122, 360, pitcherColor, { catcher: true });
+    this.player(c, 160, 367, batterColor, { swing: swingProgress, time });
+    this.player(c, 672, 342, pitcherColor, { pitcher: true, throwing: phase === 'pitch' && progress < .17, time });
+
+    // A clear strike window remains readable on a narrow portrait screen.
+    if (!hit && phase !== 'result') {
+      const z = FIELD.zone;
+      c.save();
+      c.strokeStyle = offense ? '#fff0c06b' : '#f5d578b3';
+      c.lineWidth = 2;
+      c.setLineDash([5, 5]);
+      c.strokeRect(z.x, z.y, z.w, z.h);
+      c.setLineDash([]);
+      c.restore();
+      if (aim && !offense) {
+        c.save();
+        c.strokeStyle = '#ffedaf';
+        c.lineWidth = 3;
+        const ax = Math.round(aim.x), ay = Math.round(aim.y);
+        c.strokeRect(ax - 9, ay - 9, 18, 18);
+        this.rect(c, ax - 15, ay - 1, 9, 3, '#fff3c9');
+        this.rect(c, ax + 7, ay - 1, 9, 3, '#fff3c9');
+        this.rect(c, ax - 1, ay - 15, 3, 9, '#fff3c9');
+        this.rect(c, ax - 1, ay + 7, 3, 9, '#fff3c9');
+        c.restore();
+      }
+    }
+    if (ball) {
+      const dx = FIELD.release.x - ball.x;
+      for (let i = 3; i > 0; i--) {
+        c.globalAlpha = .15 + (3 - i) * .07;
+        this.rect(c, ball.x + Math.sign(dx) * i * 9, ball.y - i * 2, 5, 4, '#fff9df');
+      }
+      c.globalAlpha = 1;
+      this.ball(c, ball.x, ball.y, 8);
+      this.rect(c, ball.x - 4, 355 + (ball.x - 182) * -.025, 9, 3, '#1d493b55');
+    }
+    if (hit) {
+      const p = Math.min(1, Math.max(0, hit.progress || 0));
+      const quality = hit.quality ?? .7;
+      const direction = hit.direction ?? 1;
+      const x = 182 + p * (500 + quality * 320) * (direction < 0 ? .6 : 1);
+      const y = 329 - Math.sin(p * Math.PI * .86) * (125 + quality * 150) - p * 50;
+      c.save();
+      c.strokeStyle = '#fff2b866';
+      c.lineWidth = 2;
+      c.setLineDash([4, 9]);
+      c.beginPath();
+      c.moveTo(182, 329);
+      c.quadraticCurveTo((182 + x) / 2, y - 90 * p, x, y);
+      c.stroke();
+      c.restore();
+      this.ball(c, x, y, Math.max(3, 8 - p * 4));
+      // Contact stars use tiny rectangles instead of soft particle effects.
+      if (p < .2) for (let i = 0; i < 7; i++) {
+        const a = i / 7 * Math.PI * 2;
+        this.rect(c, 182 + Math.cos(a) * p * 170, 329 + Math.sin(a) * p * 130, 4, 4, '#ffe58c');
+      }
+    }
+  }
+}
+
+return {Stadium,FIELD};
+})();
+document.getElementById('fileNotice')?.remove();
+
+const $ = id => document.getElementById(id);
+const SAVE_KEY = 'pixel-dugout-v2';
+let saved;
+try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { /* Private browsing can disable storage. */ }
+const game = new BaseballGame(saved);
+const stadium = new Stadium($('gameCanvas'));
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+const pitchTypes = [{ name:'FASTBALL', speed:93, duration:1450 }, { name:'CURVEBALL', speed:78, duration:1750 }, { name:'SLIDER', speed:85, duration:1600 }];
+let selectedPitch = 0, power = false, muted = false, paused = false, activeScreen = 'game', lastFocus;
+let aim = { x:182, y:313 }, chargingPointer = null, aimingPointer = null, intro = true;
+let play = { phase:'ready', elapsed:0 }, lastFrame = performance.now(), sessionTime = 0, audio;
+
+function persist() {
+  try { localStorage.setItem(SAVE_KEY,game.serialize()); $('saveStatus').textContent = '✓ SAVED'; }
+  catch { $('saveStatus').textContent = 'SAVE UNAVAILABLE'; }
+}
+function tone(kind='pitch') {
+  if(muted) return;
+  try {
+    const A=window.AudioContext||window.webkitAudioContext;
+    audio ||= new A(); audio.resume();
+    const o=audio.createOscillator(), g=audio.createGain(), t=audio.currentTime;
+    o.type='square'; o.frequency.setValueAtTime(kind==='hit'?660:kind==='miss'?170:350,t);
+    o.frequency.exponentialRampToValueAtTime(kind==='hit'?990:120,t+.10);
+    g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.001,t+.16);
+    o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.17);
+  } catch { /* Sound is optional. */ }
+}
+function haptic(pattern=12) { if(navigator.vibrate) navigator.vibrate(pattern); }
+function isIdle() { return play.phase==='ready' && !paused && !game.gameOver && activeScreen==='game'; }
+function showOverlay(kicker,title,show=true) {
+  $('overlayKicker').textContent=kicker; $('overlayTitle').textContent=title;
+  $('playOverlay').classList.toggle('hidden',!show);
+}
+function resetPlay(showIntro=false) {
+  play={phase:'ready',elapsed:0}; chargingPointer=null; $('mainAction').classList.remove('holding');
+  intro=showIntro; render();
+}
+function charge() {
+  if(!isIdle()||game.isBatting)return;
+  intro=false; play={phase:'charge',elapsed:0,offense:false};
+  $('mainAction').classList.add('holding');showOverlay('','',false);tone();renderControls();
+}
+function release() {
+  if(play.phase!=='charge'||paused)return;
+  const p=chargeValue(),quality=clamp(1-Math.abs(p-.75)/.6,0,1);
+  const target={...aim};
+  // A poor release moves the pitch away from the chosen target.
+  const error=(1-quality)*22;
+  target.x+=(Math.random()-.5)*error;target.y+=(Math.random()-.5)*error;
+  launch({offense:false,target,pitchQuality:quality,duration:pitchTypes[selectedPitch].duration,release:quality});
+}
+function chargeValue() { return (1-Math.cos(play.elapsed/1450*Math.PI*2))/2; }
+function readyToBat() {
+  if(!isIdle()||!game.isBatting)return;
+  const inZone=Math.random()>.24;
+  const target={x:174+Math.random()*19,y:286+Math.random()*54};
+  if(!inZone){target.y=Math.random()>.5?FIELD.zone.y-23:FIELD.zone.y+FIELD.zone.h+21;}
+  launch({offense:true,target,pitchQuality:.5,duration:1550+Math.random()*180,release:.5});
+}
+function launch(options) {
+  chargingPointer=null;intro=false;
+  const z=FIELD.zone;
+  play={...options,phase:'pitch',elapsed:0,swung:false,quality:0,swingAt:-1,
+    inZone: options.target.x>=z.x&&options.target.x<=z.x+z.w&&options.target.y>=z.y&&options.target.y<=z.y+z.h,
+    power, pitchType:selectedPitch};
+  $('mainAction').classList.remove('holding');showOverlay('','',false);tone('pitch');renderControls();
+}
+function swing() {
+  if(paused||play.phase!=='pitch'||!play.offense||play.swung)return;
+  play.swung=true;play.swingAt=play.elapsed;
+  const distance=Math.abs(play.elapsed/play.duration-.86);
+  // A 250 ms contact window is forgiving enough for a phone, but still rewards timing.
+  play.quality=clamp(1-distance/.24,0,1);
+  play.feedback=distance<.025?'PERFECT!':distance<.075?'GOOD TIMING':play.elapsed/play.duration<.86?'TOO EARLY':'TOO LATE';
+  tone(play.quality>.4?'hit':'miss');haptic();renderControls();
+}
+function resolve() {
+  const previous={...play};
+  const event=game.resolvePitch({swing:play.swung,quality:play.quality,inZone:play.inZone,pitchQuality:play.pitchQuality,power:play.power});
+  persist();
+  const contact=['single','double','triple','homerun','out','foul'].includes(event.type);
+  const timing=previous.offense&&previous.swung?previous.feedback:!previous.offense?(previous.release>.9?'PERFECT RELEASE':previous.release>.6?'GOOD RELEASE':'OFF TARGET'): 'PITCH TAKEN';
+  play={...previous,phase:contact?'contact':'result',elapsed:0,event,timing};
+  if(contact){tone('hit');showOverlay('','',false);}
+  else presentResult();
+  renderControls();
+}
+function presentResult() {
+  play.phase='result'; play.elapsed=0;
+  const e=play.event;
+  const kicker=game.gameOver?'FINAL SCORE':e.scored?`${e.scored} RUN${e.scored===1?'':'S'} SCORED`:play.timing||'THE CALL';
+  const title=game.gameOver?(game.state.score[1]>game.state.score[0]?'KNIGHTS WIN!':'FINAL OUT.'):e.label;
+  showOverlay(kicker,title); $('resultText').textContent=e.text;
+  if(e.type==='homerun'||game.gameOver){haptic([20,40,20]);tone('hit');}
+  render();
+}
+function skipHalf() {
+  if(!isIdle())return;
+  const offense=game.isBatting, event=game.simHalf();
+  if(!event)return;
+  persist(); play={phase:'result',elapsed:0,offense,event,timing:'HALF INNING SIMULATED'};presentResult();
+}
+function continueGame() {
+  if(!game.gameOver)return;
+  if(game.state.game===11){showSeasonResult();return;}
+  game.nextGame();persist();resetPlay(true);
+}
+function renderControls() {
+  const over=game.gameOver, offense=play.phase==='ready'?game.isBatting:play.offense??game.isBatting;
+  const busy=!['ready','charge'].includes(play.phase), incoming=play.phase==='pitch'&&offense;
+  const canSwing=incoming&&!play.swung;
+  $('actionKicker').textContent=over?'LEAVE IT ALL ON THE FIELD':offense?'A LITTLE TIMING. A LOT OF HEART.':'THE BALL IS IN YOUR HANDS';
+  $('actionTitle').textContent=over?(game.state.score[1]>game.state.score[0]?'That’s a ballgame.':'Get ’em next time.'):offense?'Make your swing.':'Make your pitch.';
+  $('controlHint').textContent=over?'Your result is saved. Keep the season rolling.':offense?'Ready the pitch, then tap SWING as the needle reaches green. Take pitches outside the box.':'Drag the crosshair to aim. Hold PITCH and release in green.';
+  $('mainActionLabel').textContent=over?(game.state.game===11?'SEASON RESULTS':'NEXT GAME →'):canSwing?'SWING!':incoming?'SWING TAKEN':play.phase==='charge'?'RELEASE!':play.phase==='ready'?(offense?'READY FOR PITCH':'HOLD TO PITCH'):'NEXT PLAY…';
+  $('mainActionSub').textContent=over?`${game.state.results.filter(r=>r.win).length} WINS THIS SEASON`:incoming?(play.swung?play.feedback:'TIME THE BALL AT THE PLATE'):play.phase==='charge'?'LET GO IN THE GREEN':offense?'WATCH THE BALL • TIME YOUR TAP':'RELEASE IN THE GREEN';
+  $('mainAction').disabled=paused||(!over&&busy&&!canSwing)||(over&&play.phase!=='ready');
+  $('secondaryAction').textContent=incoming?'TAKE PITCH':'SIM HALF »';
+  $('secondaryAction').disabled=paused||over||(busy&&!incoming)||play.phase==='charge'||(incoming&&play.swung);
+  $('tacticsRow').innerHTML=offense?['CONTACT','POWER'].map((n,i)=>`<button class="tactic ${power===Boolean(i)?'active':''}" data-power="${i}" aria-pressed="${power===Boolean(i)}" ${busy||over?'disabled':''}>${i?'↗':'⊕'} ${n}</button>`).join(''):pitchTypes.map((p,i)=>`<button class="tactic ${selectedPitch===i?'active':''}" data-pitch="${i}" aria-pressed="${selectedPitch===i}" ${busy||play.phase==='charge'||over?'disabled':''}>${p.name}</button>`).join('');
+  $('stealBtn').disabled=!isIdle()||!game.isBatting||!game.state.bases[0]||game.state.bases[1];
+  $('subBtn').disabled=!isIdle(); $('aimReset').hidden=offense||over; $('aimReset').disabled=busy||paused;
+  $('meterLeft').textContent=offense?'SWING TIMING':'RELEASE METER';
+  $('sweetSpot').style.left=offense?'80%':'65%';$('sweetSpot').style.width=offense?'12%':'20%';
+  $('timingMeter').setAttribute('aria-label',offense?'Swing when the timing needle reaches the green zone':'Release when the pitch meter reaches the green zone');
+  if(play.phase==='ready'){$('meterNeedle').style.left='0%';$('meterStatus').textContent=over?'GAME COMPLETE':offense?'READY WHEN YOU ARE':'HOLD TO CHARGE';}
+}
+function render() {
+  const s=game.state,p=game.batter,opp=game.opponent, wins=s.results.filter(r=>r.win).length;
+  $('seasonLabel').textContent=`SEASON 01 / GAME ${String(s.game+1).padStart(2,'0')}`;
+  $('recordChip').textContent=`${wins} W · ${s.results.length-wins} L`;
+  $('awayBadge').textContent=opp.short[0];$('awayBadge').style.background=opp.color;
+  $('awayName').textContent=opp.city==='LOS ANGELES'?'LOS ANGELES':opp.city;
+  $('awayScore').textContent=s.score[0];$('homeScore').textContent=s.score[1];
+  const ordinal=s.inning%100>=11&&s.inning%100<=13?'TH':({1:'ST',2:'ND',3:'RD'}[s.inning%10]||'TH');
+  $('inningLabel').textContent=s.over?'FINAL':`${s.half?'▼':'▲'} ${s.inning}${ordinal}`;
+  $('outsLabel').textContent=`${s.outs} OUT${s.outs===1?'':'S'}`;$('gameLength').textContent=`${s.innings} INNINGS`;
+  $('balls').textContent=s.balls;$('strikes').textContent=s.strikes;$('outs').textContent=s.outs;
+  $('modeTag').textContent=s.over?'THAT’S A BALLGAME':game.isBatting?'YOU’RE BATTING':'YOU’RE PITCHING';
+  $('pitchInfo').textContent=game.isBatting?`${power?'POWER':'CONTACT'} SWING`:`${pitchTypes[selectedPitch].name} · ${pitchTypes[selectedPitch].speed} MPH`;
+  [1,2,3].forEach((n,i)=>$('base'+n).classList.toggle('on',s.bases[i]));
+  $('baseDiamond').setAttribute('aria-label',s.bases.some(Boolean)?`Runners on ${s.bases.map((v,i)=>v?['first','second','third'][i]:'').filter(Boolean).join(' and ')}`:'Bases empty');
+  $('batterName').textContent=p.name;$('batterPosition').textContent=`${p.pos} · RIGHT HANDED`;
+  $('playerNumber').textContent=String(p.id+1).padStart(2,'0');$('playerRole').textContent=game.isBatting?'YOUR HITTER':'VISITING HITTER';
+  $('matchupSide').textContent=`${s.half?'BOT':'TOP'} ${s.inning}`;
+  $('pitcherName').textContent=game.pitcher.name;
+  const stars=clamp(Math.round((p.contact+p.power)/40),1,5);$('playerStars').textContent='★'.repeat(stars)+'☆'.repeat(5-stars);
+  $('skillBars').innerHTML=[['CONTACT',p.contact],['POWER',p.power],['SPEED',p.speed]].map(([n,v])=>`<div class="skill-row"><span>${n}</span><div class="skill-track"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
+  const length=Math.max(s.innings,s.inning);
+  $('lineScore').innerHTML=`<table class="line-table"><thead><tr><th>CLUB</th>${Array.from({length},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th><th>H</th></tr></thead><tbody>${[0,1].map(t=>`<tr><td>${t?'NYK':opp.short}</td>${Array.from({length},(_,i)=>`<td>${s.lines[t][i]??'–'}</td>`).join('')}<td class="total">${s.score[t]}</td><td>${s.hits[t]}</td></tr>`).join('')}</tbody></table>`;
+  const log=s.log.slice(0,7);$('playLog').replaceChildren(...(log.length?log.map(e=>{const el=document.createElement('p'),tag=document.createElement('b');tag.textContent=e.tag||'';el.append(tag,document.createTextNode(e.text));return el;}):[Object.assign(document.createElement('p'),{textContent:'The grass is cut. The crowd is ready. Let’s play ball.'})]));
+  $('resultText').textContent=s.log[0]?.text||'Welcome to Knights Park. Your season starts here.';
+  renderClub();renderLeague();renderControls();
+  if(play.phase==='ready')showOverlay(s.over?'FINAL SCORE':game.isBatting?'YOUR TURN AT THE PLATE':'TAKE THE MOUND',s.over?(s.score[1]>s.score[0]?'KNIGHTS WIN!':'FINAL OUT.'):game.isBatting?'WAIT FOR YOUR PITCH.':'PAINT THE CORNERS.',intro||s.over);
+}
+function renderClub() {
+  const s=game.state;
+  $('rosterTable').innerHTML=game.lineup.map((p,i)=>`<div class="roster-player"><span>${i+1}</span><div><b>${p.name}</b><small>${p.pos}</small></div><div class="ratings">${p.contact} / ${p.power}</div><div class="move-buttons"><button data-move="${i},-1" aria-label="Move ${p.name} up" ${s.started||i===0?'disabled':''}>▲</button><button data-move="${i},1" aria-label="Move ${p.name} down" ${s.started||i===8?'disabled':''}>▼</button></div></div>`).join('');
+  $('pitchingRoster').innerHTML=pitchers.map(p=>`<div class="staff-player"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><span>${s.pitchers[1]===p.id?`${s.pitches[1]} PITCHES`:s.usedPitchers.includes(p.id)?'USED':'READY'}</span></div>`).join('');
+  $('benchRoster').innerHTML=game.availableBench.map(p=>`<div class="bench-player"><div><b>${p.name}</b><small>${p.pos}</small></div><span>${p.contact} CON</span></div>`).join('')||'<p class="card-note">Everyone on the bench has entered this game.</p>';
+}
+function renderLeague() {
+  const s=game.state,wins=s.results.filter(r=>r.win).length;
+  $('seasonRecord').textContent=`${wins} WINS / ${s.results.length-wins} LOSSES`;
+  $('standings').innerHTML=`<table class="standings-table"><thead><tr><th>CLUB</th><th>W</th><th>L</th></tr></thead><tbody>${game.standings.map(t=>`<tr class="${t.id===0?'mine':''}"><td>${t.name}</td><td>${t.w}</td><td>${t.l}</td></tr>`).join('')}</tbody></table>`;
+  $('schedule').innerHTML=Array.from({length:12},(_,i)=>{const r=s.results[i];return `<div class="schedule-game ${i===s.game?'current':''}"><span class="num">${String(i+1).padStart(2,'0')}</span><b>${teams[1+i%3].name}<small>AT KNIGHTS PARK</small></b><span>${r?`${r.win?'W':'L'} ${r.score[1]}–${r.score[0]}`:i===s.game?'GAME DAY':'UP NEXT'}</span></div>`;}).join('');
+}
+
+// A single animation clock pauses safely when the app is backgrounded.
+function frame(now) {
+  const dt=Math.min(now-lastFrame,50);lastFrame=now;
+  if(!paused && !document.hidden && activeScreen==='game') {
+    sessionTime+=dt;play.elapsed+=dt;
+    if(play.phase==='charge') {
+      const value=chargeValue();$('meterNeedle').style.left=`${value*99}%`;
+      $('meterStatus').textContent=value>.65&&value<.85?'RELEASE NOW!':'FIND THE GREEN';
+    }
+    if(play.phase==='pitch') {
+      const progress=play.elapsed/play.duration;
+      if(play.offense) {
+        $('meterNeedle').style.left=`${Math.min(99,progress*86/.86)}%`;
+        $('meterStatus').textContent=play.swung?play.feedback:progress>.8&&progress<.92?'SWING NOW!':'WATCH THE BALL';
+      }
+      if(progress>=1.12 || (play.swung && progress>=Math.max(.88,play.swingAt/play.duration+.035))) resolve();
+    } else if(play.phase==='contact'&&play.elapsed>750)presentResult();
+    else if(play.phase==='result'&&play.elapsed>1100)resetPlay(Boolean(play.event?.inningChanged));
+  }
+  const current=play, offense=current.phase==='ready'?game.isBatting:current.offense??game.isBatting;
+  const progress=current.phase==='pitch'?clamp(current.elapsed/current.duration,0,1.16):0;
+  const t=clamp(progress/.86,0,1.3);
+  let ball=null;
+  if(current.phase==='pitch') {
+    const curve=current.pitchType===1?Math.sin(t*Math.PI)*-35:current.pitchType===2?Math.sin(t*Math.PI)*20:0;
+    ball={x:FIELD.release.x+(current.target.x-FIELD.release.x)*t,y:FIELD.release.y+(current.target.y-FIELD.release.y)*t+curve};
+  }
+  stadium.draw({time:reducedMotion?0:sessionTime,phase:current.phase,offense,progress,aim:offense?null:aim,ball,
+    swingProgress:current.swingAt>=0?clamp((current.phase==='pitch'?current.elapsed-current.swingAt:current.elapsed+200)/450,0,1):-1,
+    hit:current.phase==='contact'?{progress:current.elapsed/750,quality:current.event?.quality??.6,direction:1}:null});
+  requestAnimationFrame(frame);
+}
+
+$('mainAction').addEventListener('pointerdown',e=>{
+  if(e.button!==0||paused||$('mainAction').disabled)return;
+  e.preventDefault();$('mainAction').focus();
+  if(game.gameOver){continueGame();return;}
+  if(play.phase==='pitch'){swing();return;}
+  if(!isIdle())return;
+  if(game.isBatting){readyToBat();return;}
+  chargingPointer=e.pointerId; e.currentTarget.setPointerCapture(e.pointerId);charge();
+});
+$('mainAction').addEventListener('pointerup',e=>{if(chargingPointer!==e.pointerId)return;chargingPointer=null;release();});
+$('mainAction').addEventListener('pointercancel',()=>{if(play.phase==='charge')resetPlay();});
+$('mainAction').addEventListener('lostpointercapture',()=>{if(chargingPointer!==null&&play.phase==='charge')resetPlay();chargingPointer=null;});
+// Keyboard and assistive-technology click activation have no PointerEvent sequence.
+$('mainAction').addEventListener('click',e=>{if(e.detail!==0||paused||$('mainAction').disabled)return;if(game.gameOver)continueGame();else if(play.phase==='pitch')swing();else if(play.phase==='charge')release();else if(game.isBatting)readyToBat();else {charge();play.elapsed=480;release();}});
+$('secondaryAction').onclick=()=>{if(play.phase==='pitch'&&play.offense&&!play.swung){play.swung=false;play.elapsed=play.duration*1.16;resolve();}else skipHalf();};
+function setAim(e) {
+  const rect=$('gameCanvas').getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*FIELD.width,y=(e.clientY-rect.top)/rect.height*FIELD.height;
+  // The large gesture region maps to the much smaller pitch target for comfortable thumb aiming.
+  aim={x:clamp(182+(x-182)*.7,FIELD.zone.x-35,FIELD.zone.x+FIELD.zone.w+35),y:clamp(y,FIELD.zone.y-35,FIELD.zone.y+FIELD.zone.h+35)};
+  intro=false;showOverlay('','',false);
+}
+$('fieldWrap').addEventListener('pointerdown',e=>{if(e.target.closest('button')||game.isBatting||!isIdle())return;e.preventDefault();aimingPointer=e.pointerId;e.currentTarget.setPointerCapture(e.pointerId);setAim(e);});
+$('fieldWrap').addEventListener('pointermove',e=>{if(aimingPointer===e.pointerId)setAim(e);});
+['pointerup','pointercancel','lostpointercapture'].forEach(type=>$('fieldWrap').addEventListener(type,()=>aimingPointer=null));
+$('aimReset').onclick=()=>{aim={x:182,y:313};intro=false;showOverlay('','',false);};
+$('tacticsRow').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.pitch!==undefined)selectedPitch=Number(b.dataset.pitch);if(b.dataset.power!==undefined)power=Boolean(Number(b.dataset.power));render();};
+$('rosterTable').onclick=e=>{const b=e.target.closest('[data-move]');if(!b||b.disabled)return;const [index,delta]=b.dataset.move.split(',').map(Number);if(game.reorder(index,delta)){persist();renderClub();}};
+$('stealBtn').onclick=()=>{if(!isIdle())return;const event=game.steal();if(event.type==='blocked')return;persist();play={phase:'result',elapsed:0,offense:true,event,timing:'TAKING A CHANCE'};presentResult();};
+
+function showScreen(screen) {
+  if(play.phase==='charge')resetPlay();
+  if(play.phase!=='ready'){openPause();return;}
+  activeScreen=screen;document.body.dataset.screen=screen;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+screen));
+  document.querySelectorAll('[data-screen]').forEach(b=>{b.classList.toggle('active',b.dataset.screen===screen);if(b.dataset.screen===screen)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+  window.scrollTo({top:0,behavior:'auto'});render();
+}
+document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+document.querySelector('.brand').onclick=e=>{e.preventDefault();showScreen('game');};
+function openModal(title,body) {
+  lastFocus=document.activeElement;paused=true;
+  $('modalRoot').innerHTML=`<section class="modal" role="dialog" aria-modal="true" aria-label="${title}"><div class="modal-heading"><h2>${title}</h2><button class="modal-close" aria-label="Close dialog" id="closeModal">×</button></div><div class="modal-body">${body}</div></section>`;
+  $('closeModal').onclick=closeModal;$('closeModal').focus();
+}
+function closeModal() { $('modalRoot').replaceChildren();paused=false;lastFrame=performance.now();lastFocus?.focus(); }
+function openPause() {
+  if(play.phase==='charge')resetPlay();
+  openModal('TIME OUT.',`<p>The game is paused. Take a breath. The ballpark will be here.</p><button class="big-button" id="resumeBtn">BACK TO THE GAME →</button><p class="install-note">Your season saves after every play.</p>`);
+  $('resumeBtn').onclick=closeModal;
+}
+$('pauseBtn').onclick=openPause;
+$('helpBtn').onclick=()=>{
+  if(play.phase==='charge')resetPlay();
+  openModal('WELCOME TO THE CLUB.',`<h3>ON THE MOUND</h3><p>Drag the crosshair near the batter to aim. Hold the gold PITCH button, then release when the meter reaches green.</p><h3>AT THE PLATE</h3><p>Tap READY FOR PITCH. When the ball reaches your batter on the left, tap SWING. The green timing zone helps you find the sweet spot. TAKE lets a pitch pass.</p><h3>YOUR SEASON</h3><p>Play twelve quick three-inning games, or choose nine innings in New Season. Manage your lineup in the Clubhouse.</p><p class="install-note">This edition needs no downloads or connection. Open it in a browser that supports local HTML. iPhone Files only previews HTML; to play on iPhone, open a hosted version in Safari.</p><button class="big-button" id="letsPlay">LET’S PLAY BALL →</button>`);
+  $('letsPlay').onclick=closeModal;
+};
+$('rulesLink').onclick=()=>showScreen('rules');
+$('subBtn').onclick=()=>{
+  if(!isIdle())return;
+  openModal('CALL TO THE DUGOUT',`<h3>FRESH ARM</h3>${game.availablePitchers.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><button class="tiny-button" data-relief="${p.id}">IN</button></div>`).join('')||'<p>All relief pitchers have entered.</p>'}<h3>PINCH HIT FOR ${roster[game.state.order[game.state.bats[1]%9]].name.toUpperCase()}</h3>${game.availableBench.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>${p.contact} CONTACT · ${p.power} POWER</small></div><button class="tiny-button" data-bench="${p.id}">IN</button></div>`).join('')||'<p>No unused bench players.</p>'}<p class="install-note">Replaced players cannot return until the next game.</p>`);
+};
+$('modalRoot').onclick=e=>{
+  if(e.target===$('modalRoot')){closeModal();return;}
+  const b=e.target.closest('[data-relief],[data-bench]');if(!b)return;
+  const success=b.dataset.relief!==undefined?game.substitutePitcher(Number(b.dataset.relief)):game.substituteBatter(Number(b.dataset.bench));
+  if(success){persist();closeModal();render();$('resultText').textContent='A fresh face steps into the game.';}
+};
+$('resetSeasonBtn').onclick=()=>{
+  openModal('A FRESH START.',`<p>Start a new season? Your current season and scores will be cleared.</p><h3>GAME LENGTH</h3><select id="inningsChoice" aria-label="Innings per game"><option value="3">3 innings · Pocket game</option><option value="9">9 innings · Full baseball</option></select><div class="modal-actions"><button class="secondary-button" id="cancelReset">KEEP PLAYING</button><button class="big-button" id="confirmReset">NEW SEASON →</button></div>`);
+  $('inningsChoice').value=String(game.state.innings);$('cancelReset').onclick=closeModal;
+  $('confirmReset').onclick=()=>{game.reset(Number($('inningsChoice').value));persist();closeModal();resetPlay(true);showScreen('game');};
+};
+function showSeasonResult() {
+  const s=game.state,wins=s.results.filter(r=>r.win).length,rank=game.standings.findIndex(t=>t.id===0)+1;
+  openModal('SEASON IN THE BOOKS.',`<p style="font-size:26px;color:var(--gold);font-weight:bold">${wins} WINS · ${12-wins} LOSSES</p><p>Your Knights finish #${rank} in the Pixel League. Every pitch, every swing — that was your season.</p><button id="seasonLeague" class="big-button">VIEW THE SEASON →</button>`);
+  $('seasonLeague').onclick=()=>{closeModal();showScreen('league');};
+}
+$('soundToggle').onclick=()=>{muted=!muted;$('soundToggle').textContent=muted?'♩':'♫';$('soundToggle').setAttribute('aria-pressed',String(!muted));$('soundToggle').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');};
+let spaceHeld=false;
+document.addEventListener('keydown',e=>{
+  if($('modalRoot').children.length){
+    if(e.key==='Escape'){e.preventDefault();closeModal();}
+    if(e.key==='Tab'){
+      const f=[...$('modalRoot').querySelectorAll('button:not(:disabled),select')],a=f[0],z=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus();}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus();}
+    }return;
+  }
+  if(e.key==='Escape'){openPause();return;}
+  if(activeScreen!=='game'||e.target.matches('select,input,textarea')||e.altKey||e.metaKey||e.ctrlKey)return;
+  if(e.code==='Space' && e.target.closest('button,a') && e.target.id!=='mainAction')return;
+  if(e.code==='Space'){
+    e.preventDefault();if(e.repeat||spaceHeld)return;spaceHeld=true;
+    if(game.gameOver&&play.phase==='ready'){continueGame();return;}
+    if(play.phase==='pitch'&&play.offense)swing();else if(isIdle()){if(game.isBatting)readyToBat();else charge();}
+  }
+  if(e.key.startsWith('Arrow')&&isIdle()&&!game.isBatting){e.preventDefault();aim.x=clamp(aim.x+(e.key==='ArrowRight'?5:e.key==='ArrowLeft'?-5:0),116,248);aim.y=clamp(aim.y+(e.key==='ArrowDown'?5:e.key==='ArrowUp'?-5:0),240,387);intro=false;showOverlay('','',false);}
+});
+document.addEventListener('keyup',e=>{if(e.code==='Space'&&spaceHeld){e.preventDefault();spaceHeld=false;if(play.phase==='charge')release();}});
+function interruption() {
+  spaceHeld=false;chargingPointer=null;aimingPointer=null;
+  if(play.phase==='charge')resetPlay();
+  if(play.phase!=='ready'&&!paused)openPause();
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)interruption();lastFrame=performance.now();});
+window.addEventListener('blur',interruption);
+
+document.body.dataset.screen='game';render();persist();requestAnimationFrame(frame);
+$('offlineStatus').textContent = 'SINGLE-FILE EDITION · NO CONNECTION NEEDED';
+
+})();
+</script>
+</body>
+</html>
