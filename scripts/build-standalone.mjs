@@ -4,8 +4,8 @@ import path from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = name => readFile(path.join(root, name), 'utf8');
-const [template, css, careerCss, engine, stadium, careerUi, app, icon] = await Promise.all(
-  ['index.html', 'style.css', 'career.css', 'engine.js', 'stadium.js', 'career-ui.js', 'app.js', 'icon-192.png'].map(name =>
+const [template, css, careerCss, engine, playback, stadium, careerUi, app, icon] = await Promise.all(
+  ['index.html', 'style.css', 'career.css', 'engine.js', 'playback.js', 'stadium.js', 'career-ui.js', 'app.js', 'icon-192.png'].map(name =>
     name.endsWith('.png') ? readFile(path.join(root, name)).then(b => b.toString('base64')) : read(name))
 );
 // Keep each module's private names in its own scope (both app and engine define clamp).
@@ -13,7 +13,7 @@ const wrapModule = (source, names) => `(() => {\n${source.replace(/^import .*;\n
 const localApp = app.replace(/^import .*;\n/gm, '').replace(/\nif\('serviceWorker' in navigator[\s\S]*$/, `\n$('offlineStatus').textContent = 'SINGLE-FILE EDITION · NO CONNECTION NEEDED';\n`)
   .replace('Use your browser’s Add to Home Screen option for an app-like view.', 'Keep this file on your device and open it in a browser that supports local HTML.')
   .replace('On iPhone: Share → Add to Home Screen. On Android: browser menu → Install app or Add to Home screen. Serve the game over HTTPS for offline play.', 'This edition needs no downloads or connection. Open it in a browser that supports local HTML. iPhone Files only previews HTML; to play on iPhone, open a hosted version in Safari.');
-const script = `(() => {\n'use strict';\nconst {BaseballGame,teams,roster,pitchers}=${wrapModule(engine,['BaseballGame','teams','roster','pitchers'])};\nconst {Stadium,FIELD}=${wrapModule(stadium,['Stadium','FIELD'])};\nconst {CareerUI}=${wrapModule(careerUi,['CareerUI'])};\ndocument.getElementById('fileNotice')?.remove();\n${localApp}\n})();`;
+const script = `(() => {\n'use strict';\nconst {BaseballGame,teams,roster,pitchers}=${wrapModule(engine,['BaseballGame','teams','roster','pitchers'])};\nconst {BASE_POINTS,planPlay,sampleBall,runnerPosition}=${wrapModule(playback,['BASE_POINTS','planPlay','sampleBall','runnerPosition'])};\nconst {Stadium,FIELD}=${wrapModule(stadium,['Stadium','FIELD'])};\nconst {CareerUI}=${wrapModule(careerUi,['CareerUI'])};\ndocument.getElementById('fileNotice')?.remove();\n${localApp}\n})();`;
 const html = template
   .replace(/\s*<link rel="manifest"[^>]*>/, '')
   .replace(/<link rel="icon"[^>]*>/, `<link rel="icon" type="image/png" href="data:image/png;base64,${icon}">`)

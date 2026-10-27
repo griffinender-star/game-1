@@ -51,6 +51,17 @@ The optional manual workflow in `.github/workflows/pages.yml` is an alternative 
 
 All asset paths, career modules, and offline files support the `/game-1/` subpath. The public game needs no API credentials. Saved careers stay on each device, not in the repository.
 
+## See every play
+
+The game now opens on the full diamond. The camera moves to the plate for pitching and batting, then follows each ball put in play back out to the field.
+
+- Singles, doubles, triples, home runs, groundouts, flyouts, and fouls have different trajectories. Fielders chase, catch, and throw; baserunners follow the base paths and cross home to score.
+- Completed plays stay on screen. Tap **Continue** when ready. **Replay** shows the same play without repeating its scoring, rewards, or roster effects; **Skip** finishes the animation early.
+- **Pitch View / Full Field** switches the idle camera. Drag anywhere to aim; during an incoming pitch, tap **Swing** or the field to bat.
+- **Sim Half** intentionally skips the half inning, so its constituent pitches are not animated. Ordinary manual play shows every contact.
+
+The navy-and-blue interface uses original pixel artwork, raised cartridge-style buttons, a compact scoreboard, and a field-first layout across phone, tablet, and computer screens.
+
 ## Your manager career
 
 1. Choose **Create Your Manager**, enter a name, select a portrait and coaching style, and sign the contract. The Knights begin after a fictional 2–10 season with a genuinely weak 47 OVR roster.
@@ -65,7 +76,7 @@ Your manager, finances, roster, and game progress save together. Existing pre-ca
 ## Controls
 
 - **Pitch:** drag the crosshair near the batter to aim. Hold the gold button and release in the green meter zone. Aim outside the dotted strike zone to tempt a chase. Poor release adds target error; tired pitchers lose command.
-- **Bat:** tap READY FOR PITCH, watch the ball move toward the batter on the left, then tap SWING when the meter reaches green. Timing directly controls contact quality. TAKE lets the ball pass. CONTACT favors putting the ball in play; POWER can send a well-timed swing out of the park.
+- **Bat:** tap READY FOR PITCH, watch the ball move toward the batter on the left, then tap SWING or the field when the meter reaches green. Timing directly controls contact quality. TAKE lets the ball pass. CONTACT favors putting the ball in play; POWER can send a well-timed swing out of the park.
 - **Manage:** reorder the lineup before the first pitch; use SUBS for a fresh arm or pinch hitter. Replaced players cannot return in the same game. STEAL is available with a runner on first and second empty.
 - **Quick games:** three innings by default, with extras for ties and walk-off wins. Choose three or nine innings when creating your manager. SIM HALF advances the current half inning.
 - **Keyboard:** Space readies/swings, or hold/release Space to pitch. Arrow keys adjust aim; Escape pauses. Buttons also support native keyboard activation.
@@ -78,8 +89,8 @@ Gameplay pauses while a dialog is open or when backgrounded. Progress saves loca
 npm test
 ```
 
-All 26 dependency-free engine tests cover baseball rules, manager creation, weak starting rosters, draft and trade eligibility, real player improvements, credits, save compatibility, and progression across complete careers. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including timed touch batting, hold/release pitching, pause/resume, saved games, and offline reload. Career browser checks cover creation, appearance/style, transaction confirmation/cancellation, drafted/traded players joining the lineup, persistent saves, offseason training, and offline career continuation at phone, tablet, and desktop sizes. Physical Apple-device testing remains unverified.
+All 37 dependency-free rules and playback tests cover baseball rules, manager creation, weak starting rosters, draft and trade eligibility, real player improvements, credits, save compatibility, and progression across complete careers. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including timed touch batting, hold/release pitching, pause/resume, saved games, and offline reload. Career browser checks cover creation, appearance/style, transaction confirmation/cancellation, drafted/traded players joining the lineup, persistent saves, offseason training, and offline career continuation at phone, tablet, and desktop sizes. Browser checks also exercise all seven contact outcomes, held results, and replay without duplicate scoring. Physical Apple-device testing remains unverified.
 
 ## Files
 
-`career-ui.js` and `career.css` provide the title, manager creator, and front office. `engine.js` contains baseball and career rules; `stadium.js` draws the original pixel-art field; `app.js` handles animation, touch/keyboard controls, and browser saves. `sw.js`, the manifest, and icons enable offline and home-screen support. There are no external asset, font, ad, or API dependencies. Runner advancement and fielding are intentionally simplified arcade rules.
+`career-ui.js` and `career.css` provide the title, manager creator, and front office. `engine.js` contains baseball and career rules; `playback.js` creates deterministic ball and runner paths; `stadium.js` draws the original pixel-art field; `app.js` handles animation, touch/keyboard controls, and browser saves. `sw.js`, the manifest, and icons enable offline and home-screen support. There are no external asset, font, ad, or API dependencies. Runner advancement and fielding are intentionally simplified arcade rules.
