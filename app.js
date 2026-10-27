@@ -1,9 +1,10 @@
 import { BaseballGame, teams, roster, pitchers } from './engine.js';
 import { Stadium, FIELD } from './stadium.js';
+import { CareerUI } from './career-ui.js';
 
 const $ = id => document.getElementById(id);
 const SAVE_KEY = 'pixel-dugout-v2';
-let saved;
+let saved, careerUI;
 try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { /* Private browsing can disable storage. */ }
 const game = new BaseballGame(saved);
 const stadium = new Stadium($('gameCanvas'));
@@ -132,7 +133,7 @@ function renderControls() {
 }
 function render() {
   const s=game.state,p=game.batter,opp=game.opponent, wins=s.results.filter(r=>r.win).length;
-  $('seasonLabel').textContent=`SEASON 01 / GAME ${String(s.game+1).padStart(2,'0')}`;
+  $('seasonLabel').textContent=`SEASON ${String(game.career?.season||1).padStart(2,'0')} / GAME ${String(s.game+1).padStart(2,'0')}`;
   $('recordChip').textContent=`${wins} W · ${s.results.length-wins} L`;
   $('awayBadge').textContent=opp.short[0];$('awayBadge').style.background=opp.color;
   $('awayName').textContent=opp.city==='LOS ANGELES'?'LOS ANGELES':opp.city;
@@ -155,13 +156,14 @@ function render() {
   $('lineScore').innerHTML=`<table class="line-table"><thead><tr><th>CLUB</th>${Array.from({length},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th><th>H</th></tr></thead><tbody>${[0,1].map(t=>`<tr><td>${t?'NYK':opp.short}</td>${Array.from({length},(_,i)=>`<td>${s.lines[t][i]??'–'}</td>`).join('')}<td class="total">${s.score[t]}</td><td>${s.hits[t]}</td></tr>`).join('')}</tbody></table>`;
   const log=s.log.slice(0,7);$('playLog').replaceChildren(...(log.length?log.map(e=>{const el=document.createElement('p'),tag=document.createElement('b');tag.textContent=e.tag||'';el.append(tag,document.createTextNode(e.text));return el;}):[Object.assign(document.createElement('p'),{textContent:'The grass is cut. The crowd is ready. Let’s play ball.'})]));
   $('resultText').textContent=s.log[0]?.text||'Welcome to Knights Park. Your season starts here.';
-  renderClub();renderLeague();renderControls();
+  renderClub();renderLeague();renderControls();careerUI?.render();
+  $('resetSeasonBtn').textContent=game.career?'FRONT OFFICE ↗':'NEW SEASON ↻';
   if(play.phase==='ready')showOverlay(s.over?'FINAL SCORE':game.isBatting?'YOUR TURN AT THE PLATE':'TAKE THE MOUND',s.over?(s.score[1]>s.score[0]?'KNIGHTS WIN!':'FINAL OUT.'):game.isBatting?'WAIT FOR YOUR PITCH.':'PAINT THE CORNERS.',intro||s.over);
 }
 function renderClub() {
   const s=game.state;
   $('rosterTable').innerHTML=game.lineup.map((p,i)=>`<div class="roster-player"><span>${i+1}</span><div><b>${p.name}</b><small>${p.pos}</small></div><div class="ratings">${p.contact} / ${p.power}</div><div class="move-buttons"><button data-move="${i},-1" aria-label="Move ${p.name} up" ${s.started||i===0?'disabled':''}>▲</button><button data-move="${i},1" aria-label="Move ${p.name} down" ${s.started||i===8?'disabled':''}>▼</button></div></div>`).join('');
-  $('pitchingRoster').innerHTML=pitchers.map(p=>`<div class="staff-player"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><span>${s.pitchers[1]===p.id?`${s.pitches[1]} PITCHES`:s.usedPitchers.includes(p.id)?'USED':'READY'}</span></div>`).join('');
+  $('pitchingRoster').innerHTML=game.homePitchers.map(p=>`<div class="staff-player"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><span>${s.pitchers[1]===p.id?`${s.pitches[1]} PITCHES`:s.usedPitchers.includes(p.id)?'USED':'READY'}</span></div>`).join('');
   $('benchRoster').innerHTML=game.availableBench.map(p=>`<div class="bench-player"><div><b>${p.name}</b><small>${p.pos}</small></div><span>${p.contact} CON</span></div>`).join('')||'<p class="card-note">Everyone on the bench has entered this game.</p>';
 }
 function renderLeague() {
@@ -190,6 +192,7 @@ function frame(now) {
     } else if(play.phase==='contact'&&play.elapsed>750)presentResult();
     else if(play.phase==='result'&&play.elapsed>1100)resetPlay(Boolean(play.event?.inningChanged));
   }
+  if(activeScreen!=='game'){requestAnimationFrame(frame);return;}
   const current=play, offense=current.phase==='ready'?game.isBatting:current.offense??game.isBatting;
   const progress=current.phase==='pitch'?clamp(current.elapsed/current.duration,0,1.16):0;
   const t=clamp(progress/.86,0,1.3);
@@ -242,7 +245,7 @@ function showScreen(screen) {
   window.scrollTo({top:0,behavior:'auto'});render();
 }
 document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
-document.querySelector('.brand').onclick=e=>{e.preventDefault();showScreen('game');};
+document.querySelector('.brand').onclick=e=>{e.preventDefault();openCareerTitle();};
 function openModal(title,body) {
   lastFocus=document.activeElement;paused=true;
   $('modalRoot').innerHTML=`<section class="modal" role="dialog" aria-modal="true" aria-label="${title}"><div class="modal-heading"><h2>${title}</h2><button class="modal-close" aria-label="Close dialog" id="closeModal">×</button></div><div class="modal-body">${body}</div></section>`;
@@ -257,13 +260,13 @@ function openPause() {
 $('pauseBtn').onclick=openPause;
 $('helpBtn').onclick=()=>{
   if(play.phase==='charge')resetPlay();
-  openModal('WELCOME TO THE CLUB.',`<h3>ON THE MOUND</h3><p>Drag the crosshair near the batter to aim. Hold the gold PITCH button, then release when the meter reaches green.</p><h3>AT THE PLATE</h3><p>Tap READY FOR PITCH. When the ball reaches your batter on the left, tap SWING. The green timing zone helps you find the sweet spot. TAKE lets a pitch pass.</p><h3>YOUR SEASON</h3><p>Play twelve quick three-inning games, or choose nine innings in New Season. Manage your lineup in the Clubhouse.</p><p class="install-note">On iPhone: Share → Add to Home Screen. On Android: browser menu → Install app or Add to Home screen. Serve the game over HTTPS for offline play.</p><button class="big-button" id="letsPlay">LET’S PLAY BALL →</button>`);
+  openModal('WELCOME TO THE CLUB.',`<h3>ON THE MOUND</h3><p>Drag the crosshair near the batter to aim. Hold the gold PITCH button, then release when the meter reaches green.</p><h3>AT THE PLATE</h3><p>Tap READY FOR PITCH. When the ball reaches your batter on the left, tap SWING. The green timing zone helps you find the sweet spot. TAKE lets a pitch pass.</p><h3>YOUR CAREER</h3><p>Create a manager, take over the struggling Knights, and rebuild through the draft and trades in the Front Office. Finish twelve games to develop your players and enter the next season. Your manager and roster carry over.</p><p class="install-note">On iPhone: Share → Add to Home Screen. On Android: browser menu → Install app or Add to Home screen. Serve the game over HTTPS for offline play.</p><button class="big-button" id="letsPlay">LET’S PLAY BALL →</button>`);
   $('letsPlay').onclick=closeModal;
 };
 $('rulesLink').onclick=()=>showScreen('rules');
 $('subBtn').onclick=()=>{
   if(!isIdle())return;
-  openModal('CALL TO THE DUGOUT',`<h3>FRESH ARM</h3>${game.availablePitchers.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><button class="tiny-button" data-relief="${p.id}">IN</button></div>`).join('')||'<p>All relief pitchers have entered.</p>'}<h3>PINCH HIT FOR ${roster[game.state.order[game.state.bats[1]%9]].name.toUpperCase()}</h3>${game.availableBench.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>${p.contact} CONTACT · ${p.power} POWER</small></div><button class="tiny-button" data-bench="${p.id}">IN</button></div>`).join('')||'<p>No unused bench players.</p>'}<p class="install-note">Replaced players cannot return until the next game.</p>`);
+  openModal('CALL TO THE DUGOUT',`<h3>FRESH ARM</h3>${game.availablePitchers.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><button class="tiny-button" data-relief="${p.id}">IN</button></div>`).join('')||'<p>All relief pitchers have entered.</p>'}<h3>PINCH HIT FOR ${game.homeRoster[game.state.order[game.state.bats[1]%9]].name.toUpperCase()}</h3>${game.availableBench.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>${p.contact} CONTACT · ${p.power} POWER</small></div><button class="tiny-button" data-bench="${p.id}">IN</button></div>`).join('')||'<p>No unused bench players.</p>'}<p class="install-note">Replaced players cannot return until the next game.</p>`);
 };
 $('modalRoot').onclick=e=>{
   if(e.target===$('modalRoot')){closeModal();return;}
@@ -272,6 +275,7 @@ $('modalRoot').onclick=e=>{
   if(success){persist();closeModal();render();$('resultText').textContent='A fresh face steps into the game.';}
 };
 $('resetSeasonBtn').onclick=()=>{
+  if(game.career){showScreen('career');return;}
   openModal('A FRESH START.',`<p>Start a new season? Your current season and scores will be cleared.</p><h3>GAME LENGTH</h3><select id="inningsChoice" aria-label="Innings per game"><option value="3">3 innings · Pocket game</option><option value="9">9 innings · Full baseball</option></select><div class="modal-actions"><button class="secondary-button" id="cancelReset">KEEP PLAYING</button><button class="big-button" id="confirmReset">NEW SEASON →</button></div>`);
   $('inningsChoice').value=String(game.state.innings);$('cancelReset').onclick=closeModal;
   $('confirmReset').onclick=()=>{game.reset(Number($('inningsChoice').value));persist();closeModal();resetPlay(true);showScreen('game');};
@@ -279,15 +283,17 @@ $('resetSeasonBtn').onclick=()=>{
 function showSeasonResult() {
   const s=game.state,wins=s.results.filter(r=>r.win).length,rank=game.standings.findIndex(t=>t.id===0)+1;
   openModal('SEASON IN THE BOOKS.',`<p style="font-size:26px;color:var(--gold);font-weight:bold">${wins} WINS · ${12-wins} LOSSES</p><p>Your Knights finish #${rank} in the Pixel League. Every pitch, every swing — that was your season.</p><button id="seasonLeague" class="big-button">VIEW THE SEASON →</button>`);
-  $('seasonLeague').onclick=()=>{closeModal();showScreen('league');};
+  if(game.career){$('seasonLeague').textContent='OFFSEASON →';}
+  $('seasonLeague').onclick=()=>{closeModal();showScreen(game.career?'career':'league');};
 }
 $('soundToggle').onclick=()=>{muted=!muted;$('soundToggle').textContent=muted?'♩':'♫';$('soundToggle').setAttribute('aria-pressed',String(!muted));$('soundToggle').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');};
 let spaceHeld=false;
 document.addEventListener('keydown',e=>{
+  if(document.body.classList.contains('at-title')||document.querySelector('[data-ui-modal]'))return;
   if($('modalRoot').children.length){
     if(e.key==='Escape'){e.preventDefault();closeModal();}
     if(e.key==='Tab'){
-      const f=[...$('modalRoot').querySelectorAll('button:not(:disabled),select')],a=f[0],z=f[f.length-1];
+      const f=[...$('modalRoot').querySelectorAll('button:not(:disabled),select,input')],a=f[0],z=f[f.length-1];
       if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus();}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus();}
     }return;
   }
@@ -310,7 +316,25 @@ function interruption() {
 document.addEventListener('visibilitychange',()=>{if(document.hidden)interruption();lastFrame=performance.now();});
 window.addEventListener('blur',interruption);
 
-document.body.dataset.screen='game';render();persist();requestAnimationFrame(frame);
+function openCareerTitle(){
+  if(play.phase!=='ready'){openPause();return;}
+  activeScreen='title';document.body.dataset.screen='title';careerUI.showTitle();
+}
+careerUI=new CareerUI({
+  game,
+  onChange:()=>{persist();render();},
+  onCreated:()=>{persist();careerUI.hideTitle();resetPlay(true);showScreen('career');},
+  onPlay:(destination)=>{
+    careerUI.hideTitle();
+    if(destination==='office'){showScreen('career');return;}
+    if(game.gameOver){
+      if(game.state.game===11){showScreen(game.career?'career':'league');return;}
+      game.nextGame();persist();resetPlay(true);
+    }
+    showScreen('game');
+  }
+});
+document.body.dataset.screen='game';render();requestAnimationFrame(frame);openCareerTitle();
 if('serviceWorker' in navigator && location.protocol!=='file:') {
   navigator.serviceWorker.register('./sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{$('offlineStatus').textContent='OFFLINE READY · TAKE THE GAME ANYWHERE';}).catch(()=>{$('offlineStatus').textContent='PLAY ONLINE · PROGRESS SAVES HERE';});
 }
