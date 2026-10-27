@@ -2,13 +2,13 @@
   "id": "./",
   "name": "Pixel Dugout \u00b7 Pocket Baseball",
   "short_name": "Pixel Dugout",
-  "description": "Create a manager. Draft future stars. Rebuild your club. Touch-first arcade baseball.",
+  "description": "Live baseball, your manager career, and a club to rebuild. Aim your pitches and swing as the ball reaches the plate.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#10232b",
-  "theme_color": "#11252d",
+  "background_color": "#08121f",
+  "theme_color": "#08121f",
   "icons": [
     {
       "src": "icon-192.png",
