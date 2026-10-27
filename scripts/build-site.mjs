@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const output=path.join(root,'_site');
-const files=['index.html','app.js','engine.js','playback.js','stadium.js','career-ui.js','career.css','style.css','sw.js','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png'];
+const files=['index.html','app.js','engine.js','pitch-model.js','playback.js','stadium.js','career-ui.js','career.css','style.css','sw.js','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png'];
 await mkdir(output,{recursive:true});
 await Promise.all(files.map(name=>copyFile(path.join(root,name),path.join(output,name))));
 await writeFile(path.join(output,'.nojekyll'),'');

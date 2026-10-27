@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const assets = ['.nojekyll', 'index.html', 'app.js', 'engine.js', 'playback.js', 'stadium.js', 'career-ui.js', 'career.css', 'style.css', 'sw.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+const assets = ['.nojekyll', 'index.html', 'app.js', 'engine.js', 'pitch-model.js', 'playback.js', 'stadium.js', 'career-ui.js', 'career.css', 'style.css', 'sw.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 /** Publish only the built static files, without changing the checkout or its index. */
 export async function publishPages({ root = projectRoot, dryRun = false } = {}) {
