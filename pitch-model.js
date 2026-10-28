@@ -12,6 +12,13 @@ export const PITCH_TYPES = Object.freeze([
   Object.freeze({ id: 2, key: 'slider', name: 'SLIDER', speed: 85, duration: 1530, breakX: 6, breakY: 16 }),
 ]);
 
+/** Timing changes forgiveness, never the location or speed of the visible pitch. */
+export const DIFFICULTIES = Object.freeze([
+  Object.freeze({ key: 'relaxed', label: 'Relaxed', description: 'A wider contact window while you learn to read pitches.', width: 1.25 }),
+  Object.freeze({ key: 'standard', label: 'Standard', description: 'Balanced timing with room for a natural touch response.', width: 1 }),
+  Object.freeze({ key: 'allstar', label: 'All-Star', description: 'A tighter contact window for a tougher challenge.', width: .8 }),
+]);
+
 const bounded = (n, min, max) => Math.max(min, Math.min(max, n));
 const number = (n, fallback) => typeof n === 'number' && Number.isFinite(n) ? n : fallback;
 const unit = (n, fallback = .5) => bounded(number(n, fallback), 0, 1);
@@ -70,18 +77,20 @@ export function pitchPoint(progress = 0, target = PITCH_GEOMETRY.plate, pitchTyp
   };
 }
 
-/** A swing connects when the visible pitch arrives; contact only widens forgiveness slightly. */
-export function swingQuality(progress = 0, contact = 65) {
+/** A small sweet spot absorbs input jitter; forgiveness falls smoothly on either side. */
+export function swingQuality(progress = 0, contact = 65, difficulty = 'standard') {
   const p = bounded(number(progress, 0), 0, 2);
   const skill = bounded(number(contact, 65), 0, 99);
-  const ball = pitchPoint(p, PITCH_GEOMETRY.plate, 0);
-  const travel = Math.hypot(PITCH_GEOMETRY.release.x - PITCH_GEOMETRY.plate.x, PITCH_GEOMETRY.release.y - PITCH_GEOMETRY.plate.y);
-  // After the rendered pitch's final sample the bat is still simply late, never perfect.
-  const distance = p > 1.25 ? p - 1 : ball.distanceToPlate / travel;
-  const window = .18 + (skill - 65) * .0004;
-  const quality = bounded(1 - distance / window, 0, 1);
-  const feedback = distance <= .02 ? 'PERFECT CONTACT'
-    : distance <= .065 ? 'GOOD CONTACT'
+  const setting = DIFFICULTIES.find(option => option.key === difficulty) || DIFFICULTIES[1];
+  // Progress one is the actual plate crossing for every pitch type and location.
+  // Using its unclipped distance also keeps very late swings from becoming valid again.
+  const distance = Math.abs(p - 1);
+  const sweetSpot = .022 * setting.width;
+  const window = (.17 + (skill - 65) * .00035) * setting.width;
+  const falloff = bounded((distance - sweetSpot) / (window - sweetSpot), 0, 1);
+  const quality = 1 - falloff * falloff * (3 - 2 * falloff);
+  const feedback = distance <= sweetSpot + Number.EPSILON ? 'PERFECT CONTACT'
+    : quality >= .7 ? 'GOOD CONTACT'
     : quality >= .22 ? (p < 1 ? 'EARLY CONTACT' : 'LATE CONTACT')
     : p < 1 ? 'TOO EARLY' : 'TOO LATE';
   return { quality, feedback, distance, passedPlate: p > 1 };

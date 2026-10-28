@@ -33,3 +33,252 @@ body[data-screen="game"]{height:100vh;height:100dvh;overflow:hidden;padding:env(
 #gameCanvas{object-fit:fill}.play-overlay{display:none}
 @media(max-width:799px) and (orientation:portrait){.pitch-location-header{font-size:8px}#pitchResultText{font-size:8px}.pitch-location-help{font-size:8px}#pitchCoordinates{font-size:9px}#pitchCommand{font-size:8px}.pitch-map-legend{font-size:7px;column-gap:7px}#centerPitchBtn{font-size:8px;min-height:27px}.tactic{font-size:9px}#controlHint{font-size:10px;line-height:1.4}}
 @media(max-width:370px) and (orientation:portrait){.pitch-location-header{font-size:7px}#pitchResultText{font-size:7px}#pitchCoordinates{font-size:8px}#pitchCommand{font-size:7.5px}.pitch-map-legend{font-size:6.5px}.tactic{font-size:8px}#controlHint{font-size:9px}}
+
+/* Modern broadcast presentation shared by the field, clubhouse and dialogs. */
+:root {
+  --bg: #080f1a;
+  --panel: #142438;
+  --panel-dark: #0c1929;
+  --line: #2c4058;
+  --cream: #f1f6fc;
+  --muted: #a1b2c6;
+  --green: #75e6c3;
+  --gold: #ffb57c;
+  --blue: #9bcdff;
+  --shadow: 0 16px 50px #0004;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+body { background: radial-gradient(ellipse at 15% -10%, #25455c70, transparent 57%), radial-gradient(ellipse at 95% 65%, #173a3c36, transparent 60%), var(--bg); }
+button { transition: background .18s, filter .18s, box-shadow .18s, border-color .18s; }
+button:disabled { opacity: .44; }
+.brand { gap: 10px; }
+.brand b { font-weight: 780; letter-spacing: -.8px; }
+.brand small { letter-spacing: 1.1px; font-weight: 600; }
+.brand-ball {
+  border: 1px solid #e6ffff50;
+  box-shadow: inset 0 1px 1px #fff9, 0 4px 15px #0003;
+  background: linear-gradient(145deg, #f9faff, #b5cad4);
+}
+.icon-btn { background: #17283a; border-color: #3c4d64; box-shadow: inset 0 1px #ffffff06; }
+.manage-toggle, #manageToggle {
+  background: linear-gradient(155deg, #29475a, #1c3045);
+  border-color: #59758a80;
+  box-shadow: inset 0 1px #ffffff0a, 0 5px 15px #0002;
+  font-weight: 650;
+}
+.manage-menu, #manageMenu {
+  background: #142438f5;
+  border-color: #60758a88;
+  box-shadow: 0 24px 80px #0008, inset 0 1px #ffffff0d;
+  border-radius: 18px;
+}
+.manage-menu-label { color: #a3bacb; font-size: 10px; letter-spacing: .25px; font-weight: 650; }
+.manage-menu button { font-size: 14px; color: #e4edf6; font-weight: 500; }
+.manage-menu button:hover { background: #2e465a; }
+.scoreboard {
+  background: radial-gradient(ellipse at 50% 120%, #244f5b66, transparent 70%), linear-gradient(120deg, #1b2d43, #132337);
+  border-color: #52687e70;
+  box-shadow: inset 0 1px #ffffff08, 0 5px 20px #0002;
+}
+.team-badge { border-color: #fff3; box-shadow: inset 0 1px #fff2, 0 3px 8px #0002; }
+.team.home .team-badge { background: linear-gradient(145deg, #4d98b7, #226579); }
+.team small { color: #9fb4c8; letter-spacing: .55px; }
+.team b { font-weight: 650; letter-spacing: .15px; }
+.team strong { font-weight: 720; text-shadow: 0 2px 10px #0002; }
+.score-center b { color: #a4f0d6; font-weight: 650; }
+.score-center small { letter-spacing: .5px; color: #96abbf; }
+.stadium-card {
+  border-color: #55717c88;
+  background: #10202e;
+  box-shadow: 0 12px 40px #0005, 0 0 0 1px #ffffff03;
+}
+.stadium-top { background: linear-gradient(100deg, #182f3f, #122536); border-color: #45606f66; letter-spacing: .1px; }
+.stadium-top small, #cameraLabel { color: #a1b8c9; }
+.mode-tag { color: #b3f0d9; font-weight: 550; }
+.field-view-btn, #fieldViewBtn { background: #274455; border-color: #66818d88; font-weight: 600; }
+.canvas-wrap { background: radial-gradient(ellipse at 50% 40%, #284847, #172f36 65%, #10232f); box-shadow: inset 0 0 60px #0003; }
+#gameCanvas { object-fit: contain; }
+.field-hud { background: #122534; border-color: #385362; }
+.count { color: #a9bdcd; font-weight: 600; }
+.count b { color: #f5faff; font-weight: 650; font-variant-numeric: tabular-nums; }
+#pitchInfo { color: #c1dedf; letter-spacing: .15px; }
+.replay-toolbar { background: #132332; border-color: #344c60; }
+#playCaption { color: #bdcedd; letter-spacing: .05px; }
+#replayBtn, #skipReplayBtn { background: #203a4c; border-color: #49657977; font-weight: 600; }
+#hitLabel { background: linear-gradient(120deg, #102436f0, #234553eb); border-color: #93c8bd88; box-shadow: 0 5px 25px #0003; font-weight: 730; }
+#hitDetail { background: #152c3deb; color: #d2efe4; letter-spacing: .1px; }
+.controls-card {
+  background: radial-gradient(ellipse at 20% 0%, #2e526045, transparent 65%), linear-gradient(155deg, #192d42, #102136);
+  border-color: #536b8280;
+  box-shadow: inset 0 1px #ffffff07, 0 15px 40px #0003;
+}
+#controlHint { color: #bccbd9; }
+.big-button {
+  background: linear-gradient(145deg, #ffc189, #ff9b5e);
+  border-color: #ffddbd;
+  color: #182c3b;
+  font-weight: 740;
+  letter-spacing: -.15px;
+  box-shadow: inset 0 1px #fff5, 0 6px 18px #d5673026;
+}
+.big-button small { color: #324350; letter-spacing: .15px; font-weight: 600; opacity: 1; }
+.big-button:active:not(:disabled) { background: linear-gradient(145deg, #ffb47e, #ff9757); box-shadow: inset 0 2px 5px #8e471b24; }
+.secondary-button { background: #294456; border-color: #68839788; font-weight: 600; }
+.tactic { background: #142b3d; border-color: #546f8180; color: #bdcedb; font-weight: 600; letter-spacing: .1px; }
+.tactic.active { background: linear-gradient(135deg, #366a6c, #244e55); border-color: #8edac9; color: #e3fff6; box-shadow: inset 0 1px #caffed1a; }
+.result-strip { border-color: #45607666; color: #d5e2ee; }
+.utility-row button { color: #b0c4d6; font-weight: 500; }
+.utility-row span { color: #a1c6c1; letter-spacing: .15px; }
+#pitchLocationPanel { background: linear-gradient(155deg, #102336, #0c1c2d); border-color: #536b8380; box-shadow: inset 0 1px #ffffff05; }
+.pitch-location-header { font-weight: 600; color: #e2edf6; letter-spacing: .15px; }
+#pitchResultText { color: #adc3d4; }
+#pitchZone {
+  border-color: #8ba2b18c;
+  background: radial-gradient(ellipse at 50% 42%, #31545e, #182f40 73%);
+  box-shadow: inset 0 0 20px #0003, 0 2px 8px #0002;
+}
+#strikeZoneBox { border-color: #e5f3f1cc; box-shadow: 0 0 16px #d8f8ef0a; }
+#pitchTarget { border-color: #9ff9d7; box-shadow: 0 0 0 4px #75e6c31a, 0 0 14px #75e6c333; }
+#pitchTarget:before, #pitchTarget:after { background: #aaffdf; }
+#pitchCoordinates { color: #c5eee4; font-weight: 600; }
+#pitchCommand { color: #abc1cf; }
+.pitch-map-legend { color: #b0c5d2; }
+#centerPitchBtn { color: #c2eae3; background: #233f50; border-color: #63829288; font-weight: 500; }
+.pitch-mark { box-shadow: 0 2px 7px #0006; font-weight: 700; }
+.pitch-mark.latest { box-shadow: 0 0 0 3px #d6ffed24, 0 2px 10px #0005; }
+.management-layer { background: #020711ad; }
+.management-panel { background: radial-gradient(ellipse at 5% 0%, #2b4c5945, transparent 60%), linear-gradient(155deg, #182b40, #0c1a2c); border-color: #63798c99; }
+.management-header { background: #1b3046ed; border-color: #49617888; }
+.management-header>div>span { color: #b2c7d5; font-size: 10px; letter-spacing: .2px; font-weight: 500; }
+.management-header h2 { font-weight: 680; letter-spacing: -.5px; }
+.management-header button { background: #2b4c5e; border-color: #698a9b88; font-weight: 600; }
+.page-heading .eyebrow, .rule-grid article>span { letter-spacing: .35px; }
+.page-heading h1 { letter-spacing: -1px; font-weight: 720; }
+.page-heading p { color: #b5c6d4; }
+.player-card, .mini-card { background: linear-gradient(145deg, #1a3045, #13263b); border-color: #49617888; box-shadow: inset 0 1px #ffffff05; }
+.card-heading { background: #213a50; border-color: #45607680; letter-spacing: .25px; font-weight: 600; }
+.portrait {
+  width: 64px;
+  height: 76px;
+  border-radius: 14px;
+  border: 1px solid #adc4ce40;
+  background: #315a72 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Cdefs%3E%3ClinearGradient id='bg' x2='1' y2='1'%3E%3Cstop stop-color='%23729cab'/%3E%3Cstop offset='1' stop-color='%232d4b64'/%3E%3C/linearGradient%3E%3ClinearGradient id='skin' x2='1' y2='.3'%3E%3Cstop stop-color='%23e8b38e'/%3E%3Cstop offset='1' stop-color='%23ba7a57'/%3E%3C/linearGradient%3E%3ClinearGradient id='jersey' x2='1' y2='1'%3E%3Cstop stop-color='%23f5fafc'/%3E%3Cstop offset='1' stop-color='%239ebdce'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='120' fill='url(%23bg)'/%3E%3Ccircle cx='85' cy='17' r='39' fill='%23b5e2e0' opacity='.12'/%3E%3Cpath d='M5 120l5-23c3-12 17-20 33-22h14c16 2 30 10 33 22l5 23' fill='url(%23jersey)'/%3E%3Cpath d='M37 67v15l13 10 13-10V67' fill='%23bd805e'/%3E%3Cpath d='M39 77l11 9 12-9 6 4-10 20-8-10-9 10-10-20' fill='%23e5f1f5'/%3E%3Cpath d='M48 91h5v29h-5z' fill='%23397591'/%3E%3Cpath d='M29 40c-5-4-8 1-6 8 1 4 4 5 7 4m40-12c5-4 8 1 6 8-1 4-4 5-7 4' fill='%23c98e69'/%3E%3Cpath d='M28 30c0-19 44-19 44 0l-3 29c-1 13-13 20-19 20S31 72 30 59' fill='url(%23skin)'/%3E%3Cpath d='M31 31v16l-5-4 1-15m42 3v16l5-4-1-15' fill='%23342124'/%3E%3Cpath d='M25 32c-2-13 5-22 21-23 19-1 30 7 29 25l-8 3-37-1' fill='%23295472'/%3E%3Cpath d='M27 30c12-7 31-7 46-1l12 9c-16-3-35-4-60 0' fill='%23173550'/%3E%3Cpath d='M47 14v11m0-11 8 11V14' fill='none' stroke='%23edf8fa' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M35 45l8-1m14 0 8 1' stroke='%235d3e34' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='48' r='1.4' fill='%232b2b31'/%3E%3Ccircle cx='61' cy='48' r='1.4' fill='%232b2b31'/%3E%3Cpath d='M51 47l-3 10 5 1' fill='none' stroke='%23a76b50' stroke-width='1.4'/%3E%3Cpath d='M42 65q8 4 16-1' fill='none' stroke='%238c4d41' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M31 57q3 16 19 20 16-4 19-20-2 15-19 24-16-7-19-24' fill='%23543931' opacity='.35'/%3E%3Cpath d='M12 101l15 6m61-6-15 6' stroke='%233d7991' stroke-width='4'/%3E%3C/svg%3E") center/cover no-repeat;
+  box-shadow: inset 0 1px #ffffff20;
+}
+.portrait .portrait-cap, .portrait .portrait-face, .portrait .portrait-shirt { display: none; }
+.portrait b { top: auto; left: auto; right: 5px; bottom: 3px; color: #153b53; font-size: 9px; }
+.player-intro h3 { font-weight: 680; }
+.skill-track i { background: linear-gradient(90deg, #4a9a98, #91e7c8); }
+.standings-table tr.mine { background: #254b4f; color: #d2f9e9; }
+.staff-player, .bench-player, .schedule-game { border-color: #3c566b80; }
+.rule-grid article { background: linear-gradient(145deg, #1b3449, #13283c); border-color: #49667c88; }
+.rule-grid h2 { font-weight: 680; letter-spacing: -.45px; }
+.rule-grid p { color: #b4c7d5; }
+.modal { border-color: #70869b99; background: radial-gradient(ellipse at 15% 0%, #36566455, transparent 70%), linear-gradient(145deg, #1a3045, #102338); box-shadow: 0 25px 100px #0008; }
+.modal-heading { border-color: #4b657a88; }
+.modal-heading h2 { font-weight: 680; }
+.modal-body { color: #c2d1de; }
+.modal-body h3 { letter-spacing: .2px; font-weight: 600; }
+.modal-close { background: #2e4b61; border-color: #7791a488; }
+.tiny-button { min-height: 40px; min-width: 44px; padding: 8px 12px; background: #315a61; border: 1px solid #73b1a7; color: #e1fff3; font-weight: 600; }
+
+/* A short coaching card follows the actual ball; it never displays a timing bar. */
+.batting-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid #56798b88;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #254b5566, #102334);
+}
+#swingFeedback { color: #e0f8ed; font-size: 15px; font-weight: 650; line-height: 1.35; letter-spacing: -.15px; }
+.batting-help { color: #b2c9d8; font-size: 11px; line-height: 1.5; }
+.batting-panel>div { min-width: 0; }
+.batting-panel .batting-help { display: block; margin-top: 3px; }
+.difficulty-control { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: 3px; color: #a8c1d2; font-size: 10px; }
+#difficultySelect { max-width: 135px; min-height: 34px; border: 1px solid #63809288; border-radius: 8px; padding: 5px 8px; background: #1b3648; color: #e0ebf5; font-size: 11px; }
+.pace-control { display: inline-flex; align-items: center; justify-content: flex-start; gap: 7px; min-height: 30px; color: #b9d0df; font-size: 10px; line-height: 1.3; cursor: pointer; }
+.pace-control input { accent-color: #7de3bd; width: 15px; height: 15px; margin: 0; cursor: pointer; }
+.pace-control small { color: #9eb7c9; font-size: 9px; }
+#matchupMomentum { color: #aacecf; font-size: 10px; }
+
+@media (max-width:799px) and (orientation:portrait) {
+  .manage-menu button { font-size: 13px; }
+  .brand { gap: 7px; }
+  .brand b { font-size: 16px; white-space: nowrap; letter-spacing: -.65px; }
+  .brand small { letter-spacing: .55px; }
+  .brand-ball { width: 29px; height: 31px; font-size: 20px; }
+  .scoreboard { border-radius: 13px; }
+  .team b { letter-spacing: .05px; }
+  .stadium-card, .controls-card { border-radius: 14px; }
+  .big-button { font-size: 16px; }
+  .big-button small { font-size: 7px; letter-spacing: 0; }
+  .secondary-button { font-size: 9px; }
+  .tactic { font-size: 9px; letter-spacing: 0; }
+  .pitch-location-header { letter-spacing: 0; }
+  #pitchCommand { display: none; }
+  .batting-panel { grid-column: 1/-1; grid-row: 1; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 3px 10px; padding: 9px 10px; border-radius: 10px; }
+  #swingFeedback { font-size: 12px; }
+  .batting-help { width: 100%; font-size: 9px; }
+  .difficulty-control { margin: 0; font-size: 8px; gap: 5px; }
+  #difficultySelect { min-height: 29px; max-width: 100px; font-size: 10px; padding: 3px 6px; }
+  body[data-batting="true"] #controlHint { display: none; }
+  .pace-control { grid-column: 2; grid-row: 5; justify-self: end; font-size: 9px; min-height: 27px; gap: 5px; }
+  .pace-control input { width: 14px; height: 14px; }
+  .pace-control small { display: none; }
+  .utility-row { grid-column: 1; column-gap: 11px; border-top: 0; }
+  .utility-row span { display: none; }
+  .utility-row button { font-size: 9px; }
+  body[data-batting="true"] .controls-card { grid-template-columns: minmax(0,1fr) 100px; }
+  body[data-batting="true"] .play-buttons, body[data-batting="true"] .tactics-row, body[data-batting="true"] .result-strip { grid-column: 1/-1; }
+  body[data-batting="true"] .utility-row { grid-column: 1; }
+  .management-header>div>span { font-size: 9px; }
+  .management-header h2 { font-size: 18px; }
+}
+@media (max-width:370px) and (orientation:portrait) {
+  .brand b { font-size: 15px; }
+  .big-button { font-size: 14px; }
+  .big-button small { font-size: 6px; }
+  .tactic { font-size: 8px; }
+  .secondary-button { font-size: 8px; }
+  .utility-row { gap: 8px; }
+  .utility-row button { font-size: 8px; }
+  .pace-control { font-size: 8px; gap: 4px; }
+  #swingFeedback { font-size: 11px; }
+}
+@media (min-width:800px) and (max-width:1100px) and (orientation:portrait) {
+  .batting-panel { grid-column: 1/-1; grid-row: 1; display: grid; grid-template-columns: 1fr auto; gap: 3px 15px; padding: 11px 13px; }
+  .batting-help { grid-column: 1; }
+  .difficulty-control { grid-column: 2; grid-row: 1/span 2; }
+  body[data-batting="true"] #controlHint { display: none; }
+  .pace-control { grid-column: 2; grid-row: 5; justify-self: end; }
+  .pace-control small { display: none; }
+  .utility-row { grid-column: 1; border-top: 0; }
+  body[data-batting="true"] .result-strip { grid-column: 1/-1; grid-row: 3; }
+  body[data-batting="true"] .utility-row { grid-column: 1; grid-row: 4; }
+  body[data-batting="true"] .pace-control { grid-column: 2; grid-row: 4; }
+}
+@media (orientation:landscape) and (max-height:550px) {
+  .manage-menu button { font-size: 12px; }
+  .brand b { font-size: 18px; }
+  .big-button { font-size: 14px; }
+  .big-button small { font-size: 6px; }
+  .batting-panel { gap: 4px; padding: 8px 10px; border-radius: 9px; }
+  #swingFeedback { font-size: 12px; }
+  .batting-help { font-size: 9px; }
+  .difficulty-control { font-size: 8px; margin-top: 0; }
+  #difficultySelect { font-size: 10px; min-height: 28px; max-width: 105px; }
+  .pace-control { min-height: 23px; font-size: 8px; gap: 5px; }
+  .pace-control input { width: 13px; height: 13px; }
+  body[data-batting="true"] #controlHint { display: none; }
+}
+@media (orientation:landscape) and (max-height:390px) {
+  .batting-panel { padding: 6px 8px; gap: 3px; }
+  .batting-help { font-size: 8px; }
+  #swingFeedback { font-size: 11px; }
+  .difficulty-control { font-size: 7px; }
+  .pace-control { font-size: 7px; }
+}

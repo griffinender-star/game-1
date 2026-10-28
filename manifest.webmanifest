@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Pixel Dugout \u00b7 Pocket Baseball",
-  "short_name": "Pixel Dugout",
+  "name": "Dugout Baseball",
+  "short_name": "Dugout",
   "description": "Live baseball, your manager career, and a club to rebuild. Aim your pitches and swing as the ball reaches the plate.",
   "start_url": "./",
   "scope": "./",

@@ -40,7 +40,18 @@ function playKind(event) {
 function movingRunner(from, to, out = false) {
   return { id: from === 0 ? 'batter' : `runner-${from}`, from, to, scored: to === 4 && !out, out };
 }
-function destination(kind, seed) {
+function destination(kind, seed, spray) {
+  // Timing changes the picture of contact, never its already-resolved baseball outcome.
+  // All fair-hit landing points remain between the foul lines; home runs clear the wall.
+  if (Number.isFinite(spray) && CONTACT.has(kind) && kind !== 'foul') {
+    const side = clamp(spray, -1, 1), width = Math.abs(side), variation = seed % 7;
+    if (kind === 'single') return { x: 480 + side * 215, y: 225 + width * 13 + variation };
+    if (kind === 'double') return { x: 480 + side * 235, y: 112 + width * 40 + variation };
+    if (kind === 'triple') return { x: 480 + side * 278, y: 95 + width * 68 + variation };
+    if (kind === 'homerun') return { x: 480 + side * 170, y: 25 + width * 29 + variation };
+    if (kind === 'flyout') return { x: 480 + side * 175, y: 155 + width * 28 + variation };
+    if (kind === 'groundout') return copyPoint(DEFENDERS[side < -.3 ? 4 : side > .3 ? 3 : 1]);
+  }
   const left = seed % 2 === 0;
   const shift = (seed % 17) - 8;
   if (kind === 'single') return { x: (left ? 270 : 690) + shift * 2, y: 228 + seed % 18 };
@@ -61,7 +72,7 @@ export function planPlay(event = {}, beforeSnapshot = {}, afterSnapshot = {}) {
   const beforeBases = [...before.bases], afterBases = [...after.bases];
   const kind = playKind(safeEvent);
   const seed = hash(`${kind}|${safeEvent.label || ''}|${safeEvent.text || ''}|${before.inning}|${before.half}|${safeEvent.quality || 0}`);
-  const target = destination(kind, seed);
+  const target = destination(kind, seed, safeEvent.spray);
   const runners = [];
   const advance = HIT_BASES[kind] || 0;
   for (let i = 0; i < beforeBases.length; i++) {
@@ -92,7 +103,9 @@ export function planPlay(event = {}, beforeSnapshot = {}, afterSnapshot = {}) {
     event: safeEvent, kind, camera, duration: DURATIONS[kind] || 1000,
     before, after, beforeBases, afterBases, displayBases, runners,
     target, fielder, throwTarget, seed,
-    direction: target.x < 430 ? 'LEFT FIELD' : target.x > 530 ? 'RIGHT FIELD' : 'CENTER FIELD',
+    direction: kind === 'groundout' && Number.isFinite(safeEvent.spray)
+      ? (fielder.position === 'P' ? 'BACK TO THE MOUND' : fielder.position === 'SS' ? 'SHORTSTOP' : 'SECOND BASE')
+      : target.x < 430 ? 'LEFT FIELD' : target.x > 530 ? 'RIGHT FIELD' : 'CENTER FIELD',
     contact: CONTACT.has(kind), scored: Number.isInteger(safeEvent.scored) ? safeEvent.scored : runners.filter(r => r.scored).length,
     phases: { flightEnd: kind === 'groundout' ? .35 : kind === 'homerun' ? .82 : .52, fieldEnd: .72, runnersEnd: .94 },
   };
