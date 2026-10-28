@@ -156,7 +156,7 @@ export class BaseballGame {
     return event;
   }
   _blocked(text) { return { type: 'blocked', label: 'NOT AVAILABLE', text, scored: 0, bases: 0, quality: 0, before: { half: this.state.half, inning: this.state.inning }, inningChanged: false, gameOver: this.state.over }; }
-  resolvePitch({ swing = false, quality = 0, inZone = true, pitchQuality = .5, power = false } = {}) {
+  resolvePitch({ swing = false, quality = 0, inZone = true, pitchQuality = .5, locationQuality = .5, pitchVariety = .5, power = false } = {}) {
     const s = this.state; if (s.over) return this._blocked('This game is complete.');
     this._ensureLine(); s.started = true; s.pitches[1 - s.half]++;
     const before = { half: s.half, inning: s.inning }, scoreBefore = s.score[s.half], name = this.batter.name;
@@ -166,10 +166,17 @@ export class BaseballGame {
       const fatigue = Math.max(0, s.pitches[1] - 50) * .003;
       const ability=this.career?(this.pitcher.control+this.pitcher.velocity)/200:1;
       const command = Math.max(0, (this.career ? clamp(pitchQuality)*.65+ability*.35 : clamp(pitchQuality)) - fatigue);
-      swing = this._random() < (inZone ? .76 : .29 - command * .18);
-      q = this._random() * (.98 - command * .60);
-      power = this._random() < .35;
+      const location = clamp(locationQuality), variety = clamp(pitchVariety);
+      swing = this._random() < (inZone ? .79 - location * .08 : .32 - command * .14 - location * .07);
+      // Shape the distribution instead of capping it: a strong pitch is harder to
+      // square up, but even a great arm can give up a double or a home run.
+      const resistance = 1.15 + command * .80 + location * .85 + variety * .35;
+      q = Math.pow(this._random(), resistance);
+      power = this._random() < .32 + this.batter.power * .0012;
     }
+    // Power asks for a cleaner swing. Perfect human timing still gets its full
+    // reward, and contact swings remain the more forgiving way to put balls in play.
+    if (power && (this.isBatting ? quality : q) < .985) q = Math.max(0, q - .055);
     if (!swing) {
       if (!inZone) {
         s.balls++;

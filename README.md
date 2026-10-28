@@ -1,6 +1,6 @@
-# Pixel Dugout · Pocket Baseball
+# Dugout Baseball
 
-A touch-first baseball game with a modern broadcast-style stadium and a dedicated live-game interface. Create a manager, inherit a struggling New York Knights club, and rebuild it through drafts, trades, and player development. Play every pitch across twelve-game seasons.
+A touch-first baseball game with a modern broadcast-style stadium, illustrated players and manager portraits, and a dedicated live-game interface. Create a manager, inherit a struggling New York Knights club, and rebuild it through drafts, trades, and player development. Play every pitch across twelve-game seasons.
 
 ## Run
 
@@ -55,12 +55,12 @@ All asset paths, career modules, and offline files support the `/game-1/` subpat
 
 The game now opens on the full diamond. The camera moves to the plate for pitching and batting, then follows each ball put in play back out to the field.
 
-- Singles, doubles, triples, home runs, groundouts, flyouts, and fouls have different trajectories. Fielders chase, catch, and throw; baserunners follow the base paths and cross home to score.
-- Completed plays stay on screen. Tap **Continue** when ready. **Replay** shows the same play without repeating its scoring, rewards, or roster effects; **Skip** finishes the animation early.
+- Singles, doubles, triples, home runs, groundouts, flyouts, and fouls have different trajectories. Early contact pulls left, on-time contact goes up the middle, and late contact goes to the opposite field. Fielders chase, catch, and throw; baserunners follow the base paths and cross home to score.
+- **Flow play**, on by default, advances after a short result break and readies the next batting pitch automatically. It stops at side changes and the final score; pitching always waits for you to choose a spot and throw. Turn Flow play off to hold every result for **Continue**. **Replay** holds the result and never repeats scoring, rewards, or roster effects; **Skip** finishes a field animation early.
 - **Pitch View / Full Field** switches the idle camera. Use the separate strike-zone panel to locate pitches; during an incoming pitch, tap **Swing** or the field as the ball reaches the plate.
 - **Sim Half** intentionally skips the half inning, so its constituent pitches are not animated. Ordinary manual play shows every contact.
 
-The live game stays fixed within the viewport. Smooth vector stadiums, shaded turf, detailed stands, uniformed players, and a visible moving baseball replace the pixel presentation. All roster, draft, trade, and season actions are under the **Manage** dropdown. Management opens over the field and pauses any pitch in progress; Back to game resumes the exact play.
+The live game stays fixed within the viewport. Smooth vector stadiums, textured turf, modern stands, articulated players, delivery and swing animations, and a visible moving baseball replace the pixel presentation. Title, manager creation, roster, draft, trade, help, and result screens share the same modern visual design. All roster, draft, trade, and season actions are under the **Manage** dropdown. Management opens over the field and pauses any pitch in progress; Back to game resumes the exact play.
 
 ## Your manager career
 
@@ -75,11 +75,12 @@ Your manager, finances, roster, and game progress save together. Existing pre-ca
 
 ## Controls
 
-- **Pitch:** tap or drag in the side strike-zone panel, then tap **Pitch**. The outlined target shows your intended location. The inner box is the strike zone; the surrounding area lets you aim for balls. Numbered dots show actual pitch locations only after each ball reaches the plate. Pitcher control affects location error. Recent locations save with your game.
-- **Bat:** tap **Ready for pitch**, watch the actual ball travel toward the plate, then tap **Swing** or the field as it arrives. There is no timing bar. Contact quality peaks at the visible arrival point and drops for early or late swings. TAKE lets the ball pass. CONTACT favors putting the ball in play; POWER can send a well-timed swing out of the park.
+- **Pitch:** tap or drag in the side strike-zone panel, then tap **Pitch**. The outlined target shows your intended location. The inner box is the strike zone; the surrounding area lets you aim for balls. Numbered dots show actual pitch locations only after each ball reaches the plate. Pitcher control affects location error. Command, fatigue, hitting the edges, and changing pitch types influence opposing contact; a mistake over the middle can now give up an extra-base hit. Recent locations save with your game.
+- **Bat:** tap **Start at-bat**, watch the pitcher wind up and the actual ball travel toward the plate, then tap **Swing** or the field as it arrives. There is no timing bar. Contact peaks in a small sweet spot at the visible arrival point and smoothly drops for early or late swings. Choose **Relaxed**, **Standard**, or **All-Star** timing. **Take pitch** lets the ball pass. **Contact** favors putting the ball in play; **Power** trades a little timing forgiveness for home-run potential.
 - **Manage:** open the header dropdown for your front office, draft, trades, lineup, season, help, or substitutions. The field remains in place and the play pauses. Reorder the lineup before the first pitch; use substitutions for a fresh arm or pinch hitter. Replaced players cannot return in the same game. STEAL is available with a runner on first and second empty.
 - **Quick games:** three innings by default, with extras for ties and walk-off wins. Choose three or nine innings when creating your manager. SIM HALF advances the current half inning.
-- **Keyboard:** Space throws or readies a pitch and swings while batting. Arrow keys adjust the target in the side zone. Escape closes Manage or pauses the game. Dropdowns and dialogs support keyboard focus and native button activation.
+- **Preferences:** Flow play, timing difficulty, and sound are remembered in this browser, independently of your career save.
+- **Keyboard:** Space throws or starts a pitch and swings while batting. Arrow keys adjust the target in the side zone. Escape closes Manage or pauses the game. Dropdowns and dialogs support keyboard focus and native button activation.
 
 Gameplay pauses while a dialog is open or when backgrounded. Progress saves locally after each resolved play, when browser storage is available. Use the same browser and site address to resume; clearing site data removes the save. Careers use the existing v2 save format with validated career data; older v1 saves remain untouched.
 
@@ -89,7 +90,7 @@ Gameplay pauses while a dialog is open or when backgrounded. Progress saves loca
 npm test
 ```
 
-All 47 dependency-free rules, pitch-model, and playback tests cover baseball rules, manager creation, weak starting rosters, draft and trade eligibility, real player improvements, credits, save compatibility, and progression across complete careers. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including ball-arrival batting, tap-to-locate pitching, pause/resume, saved games, and offline reload. Career browser checks cover creation, appearance/style, transaction confirmation/cancellation, drafted/traded players joining the lineup, persistent saves, offseason training, and offline career continuation at phone, tablet, and desktop sizes. Browser checks also exercise all seven contact outcomes, held results, replay without duplicate scoring, management during a live pitch, and actual pitch-location persistence. Physical Apple-device testing remains unverified.
+All 56 dependency-free rules, pitch-model, and playback tests cover baseball rules, manager creation, weak starting rosters, draft and trade eligibility, real player improvements, credits, save compatibility, and progression across complete careers. Mobile browser checks were also run in touch-enabled Chromium at 360×740, 390×844, 740×360, and 844×390, including ball-arrival batting, tap-to-locate pitching, pause/resume, saved games, and offline reload. Career browser checks cover creation, appearance/style, transaction confirmation/cancellation, drafted/traded players joining the lineup, persistent saves, offseason training, and offline career continuation at phone, tablet, and desktop sizes. Browser checks also exercise all seven contact outcomes, windup and actual-arrival batting, manual and Flow pacing, difficulty persistence, final-score and side-change holds, replay without duplicate scoring, management during a live pitch, and actual pitch-location persistence. Physical Apple-device testing remains unverified.
 
 ## Files
 

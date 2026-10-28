@@ -94,6 +94,73 @@ test('plans and sampled trajectories are deterministic and do not mutate their i
   assert.equal(before.bases[0], true); assert.equal(e.before.half, 1);
 });
 
+test('swing timing sends fair contact left, through center, or to the opposite field', () => {
+  for (const kind of ['single', 'double', 'triple', 'homerun', 'flyout']) {
+    const left = planPlay(event(kind, { spray: -1 }));
+    const middle = planPlay(event(kind, { spray: 0 }));
+    const right = planPlay(event(kind, { spray: 1 }));
+    assert.ok(left.target.x < 430, kind);
+    assert.equal(middle.target.x, 480, kind);
+    assert.ok(right.target.x > 530, kind);
+    assert.equal(left.direction, 'LEFT FIELD');
+    assert.equal(middle.direction, 'CENTER FIELD');
+    assert.equal(right.direction, 'RIGHT FIELD');
+    assert.equal(left.target.y, right.target.y);
+    const slightEarly = planPlay(event(kind, { spray: -.1 }));
+    const slightLate = planPlay(event(kind, { spray: .1 }));
+    assert.equal(slightEarly.direction, 'CENTER FIELD');
+    assert.equal(slightLate.direction, 'CENTER FIELD');
+  }
+  for (const [spray, position, direction] of [[-1, 'SS', 'SHORTSTOP'], [0, 'P', 'BACK TO THE MOUND'], [1, '2B', 'SECOND BASE']]) {
+    const ground = planPlay(event('out', { label: 'GROUND OUT', spray }));
+    assert.equal(ground.fielder.position, position);
+    assert.deepEqual(ground.target, { x: ground.fielder.x, y: ground.fielder.y });
+    assert.equal(ground.direction, direction);
+    assert.deepEqual(ground.throwTarget, BASE_POINTS[1]);
+  }
+});
+
+test('spray destinations stay fair and home runs land beyond the curved outfield wall', () => {
+  for (const kind of ['single', 'double', 'triple', 'homerun', 'flyout', 'groundout']) {
+    for (let step = -25; step <= 25; step++) {
+      const plan = planPlay(event(kind, { spray: step / 20 })), { x, y } = plan.target;
+      // Foul lines run from home (480,421) through (120,177) and (840,177).
+      assert.ok(Math.abs(x - 480) * 244 / 360 <= 421 - y, `${kind} at ${step / 20}`);
+      assert.ok(x > 0 && x < 960 && y > 0 && y < 421);
+      // Fence: quadratic from (127,192) via (480,-106) to (833,192).
+      const t = (x - 127) / 706;
+      const fenceY = 192 - 596 * t * (1 - t);
+      if (kind === 'homerun') assert.ok(y < fenceY, `Home run must clear fence at ${step / 20}`);
+      else assert.ok(y > fenceY, `Fair hit must land inside the fence at ${step / 20}`);
+    }
+  }
+});
+
+test('spray changes neither scoring nor runners and remains deterministic without mutating inputs', () => {
+  const before = state([true, true, true]), after = { ...state([false, true, true]), score: [0, 2] };
+  const hit = event('double', { bases: 2, scored: 2, spray: -.7 });
+  const original = JSON.stringify({ hit, before, after });
+  const first = planPlay(hit, before, after), replay = planPlay(hit, before, after);
+  const right = planPlay({ ...hit, spray: .7 }, before, after);
+  assert.deepEqual(first, replay);
+  assert.equal(JSON.stringify({ hit, before, after }), original);
+  for (const key of ['runners', 'displayBases', 'afterBases', 'scored', 'before', 'after', 'duration']) assert.deepEqual(first[key], right[key]);
+  for (let sample = 0; sample <= 20; sample++) assert.deepEqual(sampleBall(first, sample / 20), sampleBall(replay, sample / 20));
+  assert.deepEqual(planPlay(event('foul', { spray: -1 })).target, planPlay(event('foul', { spray: 1 })).target);
+  assert.deepEqual(planPlay(event('walk', { spray: -1 })).target, planPlay(event('walk', { spray: 1 })).target);
+});
+
+test('events without spray keep their established deterministic destinations', () => {
+  const targets = {
+    single: { x: 690, y: 237 }, double: { x: 258, y: 154 }, triple: { x: 775, y: 168 },
+    homerun: { x: 628, y: 61 }, flyout: { x: 312, y: 188 }, groundout: { x: 407, y: 265 }, foul: { x: 870, y: 335 },
+  };
+  for (const [kind, target] of Object.entries(targets)) {
+    assert.deepEqual(planPlay(event(kind), state([])).target, target);
+    assert.deepEqual(planPlay(event(kind, { spray: 'left' }), state([])).target, target);
+  }
+});
+
 test('replay runner endpoints agree with real engine outcomes for each hit and each occupancy', () => {
   for (let mask = 0; mask < 8; mask++) for (const quality of [.5, .8, 1]) for (const power of [false, true]) {
     const game = new BaseballGame(null, { rng: () => .1 });

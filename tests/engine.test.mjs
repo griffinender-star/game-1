@@ -54,6 +54,39 @@ test('high command suppresses AI offense compared with poor command', () => {
   function runs(command) { const g = new BaseballGame(null, { rng: seeded(77) }); let total = 0; for (let i = 0; i < 1000; i++) { if (g.state.over) g.reset(); g.state.half = 0; const scoreBefore = g.state.score[0]; g.resolvePitch({ inZone: true, pitchQuality: command }); total += g.state.score[0] - scoreBefore; } return total; }
   assert.ok(runs(0) > runs(1));
 });
+function pitchingSample(options) {
+  const g = new BaseballGame(null, { rng: seeded(77) });
+  const result = { bases: 0, extraBaseHits: 0, homeRuns: 0 };
+  for (let i = 0; i < 8000; i++) {
+    // Isolate pitch decisions from changing batters, fatigue, runners, and innings.
+    Object.assign(g.state, { half: 0, outs: 0, strikes: 0, balls: 0, bases: [false, false, false], score: [0, 0], pitches: [0, 0], bats: [0, 0] });
+    const e = g.resolvePitch({ inZone: true, ...options });
+    result.bases += e.bases;
+    result.extraBaseHits += Number(e.bases > 1);
+    result.homeRuns += Number(e.type === 'homerun');
+  }
+  return result;
+}
+test('corners and changing pitch types suppress damage while middle mistakes can be punished', () => {
+  const middle = pitchingSample({ pitchQuality: .7, locationQuality: 0, pitchVariety: .5 });
+  const corner = pitchingSample({ pitchQuality: .7, locationQuality: 1, pitchVariety: .5 });
+  const repeated = pitchingSample({ pitchQuality: .7, locationQuality: .75, pitchVariety: 0 });
+  const mixed = pitchingSample({ pitchQuality: .7, locationQuality: .75, pitchVariety: 1 });
+  assert.ok(corner.bases < middle.bases * .8, 'Accurate corners should allow substantially less damage than the middle');
+  assert.ok(corner.extraBaseHits < middle.extraBaseHits);
+  assert.ok(mixed.bases < repeated.bases * .95, 'Predictable sequences should be easier to hit');
+  assert.ok(middle.homeRuns > 0 && corner.homeRuns > 0, 'AI extra-base hits must remain possible instead of being capped out');
+});
+test('power swings trade forgiveness for extra-base reward while perfect timing is preserved', () => {
+  const contact = batting().resolvePitch({ swing: true, quality: .25, inZone: true });
+  const power = batting().resolvePitch({ swing: true, quality: .25, inZone: true, power: true });
+  assert.equal(contact.type, 'foul'); assert.equal(power.type, 'strike');
+  assert.ok(power.quality < contact.quality);
+  const cleanContact = batting().resolvePitch({ swing: true, quality: 1, inZone: true });
+  const cleanPower = batting().resolvePitch({ swing: true, quality: 1, inZone: true, power: true });
+  assert.equal(cleanContact.type, 'double'); assert.equal(cleanPower.type, 'homerun');
+  assert.equal(cleanPower.quality, 1);
+});
 test('nine-inning games complete and fifty seeded seasons preserve baseball invariants', () => {
   for (let seed = 1; seed <= 50; seed++) {
     const g = new BaseballGame(null, { rng: seeded(seed), innings: seed === 1 ? 9 : 3 });

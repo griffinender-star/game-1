@@ -2,11 +2,13 @@ import { BaseballGame, teams, roster, pitchers } from './engine.js';
 import { Stadium, FIELD } from './stadium.js';
 import { CareerUI } from './career-ui.js';
 import { planPlay } from './playback.js';
-import { PITCH_TYPES, normalizeLocation, locationToTarget, targetToLocation, pitchPoint, swingQuality, samplePitch } from './pitch-model.js';
+import { PITCH_TYPES, DIFFICULTIES, normalizeLocation, targetToLocation, pitchPoint, swingQuality, samplePitch } from './pitch-model.js';
 
 const $ = id => document.getElementById(id);
 const SAVE_KEY = 'pixel-dugout-v2';
 let saved, careerUI;
+let preferences={difficulty:'standard',flow:true,sound:true};
+try { const p=JSON.parse(localStorage.getItem('dugout-play-settings'));if(p){if(DIFFICULTIES.some(d=>d.key===p.difficulty))preferences.difficulty=p.difficulty;if(typeof p.flow==='boolean')preferences.flow=p.flow;if(typeof p.sound==='boolean')preferences.sound=p.sound;} } catch { /* Defaults also work without storage. */ }
 let fieldView=true,lastPlayback=null,zonePointer=null,managementOpen=false,menuOpen=false;
 try { saved = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch { /* Private browsing can disable storage. */ }
 const game = new BaseballGame(saved);
@@ -14,24 +16,33 @@ const stadium = new Stadium($('gameCanvas'));
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const pitchTypes=PITCH_TYPES;
-let selectedPitch = 0, power = false, muted = false, paused = false, activeScreen = 'game', lastFocus;
+let selectedPitch = 0, power = false, muted = !preferences.sound, paused = false, activeScreen = 'game', lastFocus;
 let aim={u:.5,v:.5},intro=true;
 let play = { phase:'ready', elapsed:0 }, lastFrame = performance.now(), sessionTime = 0, audio;
 
 function persist() {
-  try { localStorage.setItem(SAVE_KEY,game.serialize()); $('saveStatus').textContent = '✓ SAVED'; }
-  catch { $('saveStatus').textContent = 'SAVE UNAVAILABLE'; }
+  try { localStorage.setItem(SAVE_KEY,game.serialize()); $('saveStatus').textContent = '✓ Saved'; }
+  catch { $('saveStatus').textContent = 'Save unavailable'; }
+}
+function savePreferences(){try{localStorage.setItem('dugout-play-settings',JSON.stringify(preferences));}catch{/* Play settings remain usable for this session. */}}
+const sentence=text=>text?text.charAt(0).toUpperCase()+text.slice(1).toLowerCase():'';
+const pitchProgress=current=>(current.elapsed-(current.windup||0))/current.duration;
+function unlockAudio(){
+  if(muted)return;
+  try {const A=window.AudioContext||window.webkitAudioContext;audio ||= new A();audio.resume().catch(()=>{});}catch{/* Audio is optional on every device. */}
 }
 function tone(kind='pitch') {
   if(muted) return;
   try {
     const A=window.AudioContext||window.webkitAudioContext;
     audio ||= new A(); audio.resume();
-    const o=audio.createOscillator(), g=audio.createGain(), t=audio.currentTime;
-    o.type='square'; o.frequency.setValueAtTime(kind==='hit'?660:kind==='miss'?170:350,t);
-    o.frequency.exponentialRampToValueAtTime(kind==='hit'?990:120,t+.10);
-    g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.001,t+.16);
-    o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.17);
+    const t=audio.currentTime,duration=kind==='hit'?.18:.14;
+    const buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,kind==='hit'?4:1.7);
+    const source=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();source.buffer=buffer;
+    filter.type=kind==='hit'?'highpass':'lowpass';filter.frequency.value=kind==='hit'?1300:kind==='swing'?1700:650;
+    gain.gain.setValueAtTime(kind==='hit'?.14:.055,t);gain.gain.exponentialRampToValueAtTime(.001,t+duration);
+    source.connect(filter);filter.connect(gain);gain.connect(audio.destination);source.start(t);
   } catch { /* Sound is optional. */ }
 }
 function haptic(pattern=12) { if(navigator.vibrate) navigator.vibrate(pattern); }
@@ -45,24 +56,24 @@ function snapshot() {
   return {inning:s.inning,half:s.half,outs:s.outs,balls:s.balls,strikes:s.strikes,bases:[...s.bases],score:[...s.score]};
 }
 function cameraView() {
-  if(['pitch'].includes(play.phase))return 'pitch';
+  if(['pitch','impact'].includes(play.phase))return 'pitch';
   if(play.plan?.camera==='field'&&['contact','result'].includes(play.phase))return 'field';
   return fieldView?'field':'pitch';
 }
 function updateCameraUI() {
-  const view=cameraView(),review=['contact','result'].includes(play.phase);
+  const view=cameraView(),review=['impact','contact','result'].includes(play.phase);
   document.body.dataset.playView=view;document.body.dataset.playPhase=play.phase;
-  $('fieldViewBtn').textContent=view==='field'?'PITCH VIEW ⊕':'FULL FIELD ◇';
-  $('fieldViewBtn').disabled=['pitch','contact'].includes(play.phase);
-  $('cameraLabel').textContent=play.replaying?' / REPLAY':view==='field'?' / FIELD CAM':' / PLATE CAM';
+  $('fieldViewBtn').textContent=view==='field'?'Plate view':'Full field';
+  $('fieldViewBtn').disabled=['pitch','impact','contact'].includes(play.phase);
+  $('cameraLabel').textContent=play.replaying?' / Replay':view==='field'?' / Field':' / Plate';
   $('replayBtn').disabled=!lastPlayback||!['ready','result'].includes(play.phase)||paused;
   $('skipReplayBtn').hidden=play.phase!=='contact';
   $('hitRibbon').hidden=!review||!play.event;
   if(review&&play.event){
-    $('hitLabel').textContent=play.event.label;
-    $('hitDetail').textContent=play.event.scored?`${play.event.scored} RUN${play.event.scored===1?'':'S'} SCORED`:play.plan?.direction||play.timing||'';
+    $('hitLabel').textContent=sentence(play.event.label);
+    $('hitDetail').textContent=play.event.scored?`${play.event.scored} run${play.event.scored===1?'':'s'} scored`:sentence(play.plan?.direction||play.timing||'');
   }
-  $('playCaption').textContent=play.phase==='contact'?(play.replaying?'REPLAY · ':'BALL IN PLAY · ')+(play.plan?.direction||'FOLLOW THE PLAY'):play.phase==='result'?(play.event?.inningChanged?`END ${play.event.before.half?'BOTTOM':'TOP'} ${play.event.before.inning} · `:'')+(play.event?.text||'TAP CONTINUE FOR THE NEXT PLAY'):view==='field'?'THE WHOLE FIELD. EVERY PLAY.':game.isBatting?'WATCH THE BALL. TIME YOUR SWING.':'AIM IN THE STRIKE-ZONE PANEL. OWN THE PLATE.';
+  $('playCaption').textContent=play.phase==='contact'?(play.replaying?'Replay · ':'Ball in play · ')+sentence(play.plan?.direction||'Follow the play'):play.phase==='result'?(play.event?.inningChanged?`END ${play.event.before.half?'BOTTOM':'TOP'} ${play.event.before.inning} · `:'')+(play.event?.text||'Continue for the next play'):view==='field'?'Knights Park · Live baseball':game.isBatting?'Watch the delivery. Meet the ball at the plate.':'Locate your pitch in the side strike zone.';
 }
 function resetPlay(showIntro=false) {
   play={phase:'ready',elapsed:0};zonePointer=null;
@@ -75,7 +86,7 @@ function pitchNow(){
 }
 function readyToBat(){
   if(!isIdle()||!game.isBatting)return;
-  const inZone=Math.random()>.24;
+  const inZone=Math.random()>(game.state.balls===3?.14:game.state.strikes===2?.34:.24);
   const incomingAim={u:.36+Math.random()*.28,v:.32+Math.random()*.36};
   if(!inZone)incomingAim.v=Math.random()>.5?.06:.94;
   const incomingType=Math.floor(Math.random()*pitchTypes.length);
@@ -100,47 +111,52 @@ function renderPitchZone(){
   const horizontal=aim.u<.36?'Left':aim.u>.64?'Right':'Center';
   const vertical=aim.v<.36?'High':aim.v>.64?'Low':'Middle';
   $('pitchCoordinates').textContent=`${vertical} · ${horizontal}`;
-  $('pitchCommand').textContent=`${pitchTypes[selectedPitch].name.toLowerCase()} · ${game.pitcher.control} control. Aim, then tap Pitch.`;
+  $('pitchCommand').textContent=`${game.pitcher.control} control · ${game.state.pitches[1]>50?'Fatiguing':'Fresh arm'}`;
   const history=pitchRecords();$('pitchMarkers').replaceChildren(...history.map((p,i)=>{
     const dot=document.createElement('span');dot.className='pitch-mark '+(['single','double','triple','homerun'].includes(p.event)?'pitch-hit':p.event==='ball'||p.event==='walk'?'pitch-ball':'pitch-strike')+(i===history.length-1?' latest':'');
     dot.style.left=`${clamp(p.u,.03,.97)*100}%`;dot.style.top=`${clamp(p.v,.03,.97)*100}%`;dot.style.opacity=String(.35+.65*(i+1)/history.length);dot.textContent=p.number;
     dot.title=`Pitch ${p.number}: ${pitchTypes[p.type].name.toLowerCase()}, ${p.velocity} mph, ${p.result.toLowerCase()}`;return dot;
   }));
   const last=history[history.length-1];
-  $('pitchResultText').textContent=play.phase==='pitch'&&!play.offense?'Pitch in flight…':last?`#${last.number} · ${last.velocity} mph · ${last.result}`:'Choose your spot';
+  $('pitchResultText').textContent=play.phase==='pitch'&&!play.offense?(play.released?'Pitch in flight…':'Winding up…'):last?`#${last.number} · ${last.velocity} mph · ${last.result}`:'Choose your spot';
 }
 function launch(options) {
   intro=false;game.state.started=true;
   const z=FIELD.zone;
-  play={...options,phase:'pitch',elapsed:0,swung:false,quality:0,swingAt:-1,
+  play={...options,phase:'pitch',elapsed:0,windup:420,released:false,swung:false,quality:0,swingAt:-1,
     inZone: options.target.x>=z.x&&options.target.x<=z.x+z.w&&options.target.y>=z.y&&options.target.y<=z.y+z.h,
     power, pitchType:options.pitchType??selectedPitch};
-  showOverlay('','',false);tone('pitch');renderControls();
+  showOverlay('','',false);renderControls();
 }
 function swing() {
-  if(paused||play.phase!=='pitch'||!play.offense||play.swung)return;
-  play.swung=true;play.swingAt=play.elapsed;
-  const contact=swingQuality(play.elapsed/play.duration,game.batter.contact);
+  if(paused||play.phase!=='pitch'||!play.offense||play.swung||play.taking||!play.released)return;
+  play.swung=true;play.swingAt=play.elapsed+clamp(performance.now()-lastFrame,0,50);
+  const contact=swingQuality((play.swingAt-play.windup)/play.duration,game.batter.contact,preferences.difficulty);
   play.quality=contact.quality;play.feedback=contact.feedback;
-  tone(play.quality>.4?'hit':'miss');haptic();renderControls();
+  tone('swing');haptic();renderControls();
 }
 function resolve() {
   const previous={...play},before=snapshot(),batter={...game.batter},pitcher={...game.pitcher};
-  const event=game.resolvePitch({swing:play.swung,quality:play.quality,inZone:play.inZone,pitchQuality:play.pitchQuality,power:play.power});
-  const after=snapshot(),plan=planPlay(event,before,after);
+  const actual=targetToLocation(play.target),edge=Math.max(Math.abs(actual.u-.5),Math.abs(actual.v-.5))/.32;
+  const recent=pitchRecords().slice(-3),repeats=recent.filter(p=>p.type===play.pitchType).length;
+  const event=game.resolvePitch({swing:play.swung,quality:play.quality,inZone:play.inZone,pitchQuality:play.pitchQuality,power:play.power,locationQuality:clamp(edge,0,1),pitchVariety:1-repeats/3});
+  const spray=previous.offense&&previous.swung?clamp(((previous.swingAt-previous.windup)/previous.duration-1)/.10,-1,1):undefined;
+  const after=snapshot(),plan=planPlay({...event,...(spray===undefined?{}:{spray})},before,after);
   recordPitch(previous,event);persist();
   const timing=previous.offense&&previous.swung?previous.feedback:!previous.offense?(previous.command>.8?'LOCATED WELL':'PITCH COMPLETE'):'PITCH TAKEN';
   play={...previous,phase:'result',elapsed:0,event,timing,plan,before,after,batter,pitcher};
   if(plan.camera==='field'){
     play.phase='contact';play.duration=reducedMotion?Math.max(1000,plan.duration*.65):plan.duration;
-    lastPlayback={...play};tone('hit');showOverlay('','',false);renderControls();
+    lastPlayback={...play};
+    if(plan.contact){play.fieldDuration=play.duration;play.phase='impact';play.duration=180;tone('hit');}
+    showOverlay('','',false);renderControls();
   }else{lastPlayback=null;presentResult();}
 }
 function presentResult() {
   play.phase='result';play.elapsed=0;
   const e=play.event;
   showOverlay('','',false);$('resultText').textContent=e.text;
-  if(!play.replaying&&(e.type==='homerun'||game.gameOver)){haptic([20,40,20]);tone('hit');}
+  if(!play.replaying&&(e.type==='homerun'||game.gameOver))haptic([20,40,20]);
   render();
 }
 function continuePlay(){
@@ -168,23 +184,28 @@ function renderControls() {
   const result=play.phase==='result';
   const over=game.gameOver, offense=play.phase==='ready'?game.isBatting:play.offense??game.isBatting;
   const busy=play.phase!=='ready', incoming=play.phase==='pitch'&&offense;
-  const canSwing=incoming&&!play.swung&&!play.taking;
-  $('actionKicker').textContent=over?'LEAVE IT ALL ON THE FIELD':offense?'A LITTLE TIMING. A LOT OF HEART.':'THE BALL IS IN YOUR HANDS';
-  $('actionTitle').textContent=over?(game.state.score[1]>game.state.score[0]?'That’s a ballgame.':'Get ’em next time.'):offense?'Make your swing.':'Make your pitch.';
-  $('controlHint').textContent=over?'Your result is saved. Keep the season rolling.':offense?'Watch the ball reach the plate, then tap Swing or the field. Let outside pitches go.':'Choose a target in the side strike zone, then tap Pitch.';
-  $('mainActionLabel').textContent=result?(over?(game.state.game===11?'SEASON RESULTS':'NEXT GAME →'):'CONTINUE →'):over?(game.state.game===11?'SEASON RESULTS':'NEXT GAME →'):canSwing?'SWING!':incoming?(play.taking?'TAKING PITCH':'SWING TAKEN'):play.phase==='ready'?(offense?'READY FOR PITCH':'PITCH'):'NEXT PLAY…';
-  $('mainActionSub').textContent=result?'EVERY PLAY. AT YOUR PACE.':over?`${game.state.results.filter(r=>r.win).length} WINS THIS SEASON`:incoming?(play.swung?play.feedback:'TIME THE BALL AT THE PLATE'):offense?'WATCH THE BALL AT THE PLATE':'THROW TO YOUR TARGET';
+  const canSwing=incoming&&play.released&&!play.swung&&!play.taking;
+  $('actionKicker').textContent=over?'Final score':offense?'At the plate':'On the mound';
+  $('actionTitle').textContent=over?(game.state.score[1]>game.state.score[0]?'Knights win.':'Next game, fresh start.'):offense?'Find your pitch.':'Work the corners.';
+  $('controlHint').textContent=over?'Your result is saved. Keep the season rolling.':offense?'Watch the ball arrive at the plate. Tap Swing or the field to connect.':'Choose a target in the side strike zone, then tap Pitch.';
+  $('mainActionLabel').textContent=result?(over?(game.state.game===11?'Season results':'Next game →'):'Continue →'):over?(game.state.game===11?'Season results':'Next game →'):canSwing?'Swing':incoming?(play.taking?'Taking pitch':play.swung?'Swing taken':'Pitcher winding up'):play.phase==='ready'?(offense?'Start at-bat':'Pitch'):'Ball in play';
+  $('mainActionSub').textContent=result?(preferences.flow&&!play.replaying&&!over?'Flow play · next play shortly':'Ready when you are'):over?`${game.state.results.filter(r=>r.win).length} wins this season`:incoming?(play.swung?sentence(play.feedback):play.released?'Meet the ball at the plate':'Watch the delivery'):offense?'Watch the delivery. Trust your swing.':'Throw to your target';
   $('mainAction').disabled=paused||(!result&&((!over&&busy&&!canSwing)||(over&&play.phase!=='ready')));
-  $('secondaryAction').textContent=incoming?'TAKE PITCH':'SIM HALF »';
+  $('secondaryAction').textContent=incoming?'Take pitch':'Sim half ›';
   $('secondaryAction').disabled=paused||over||(busy&&!incoming)||(incoming&&(play.swung||play.taking));
-  $('tacticsRow').innerHTML=offense?['CONTACT','POWER'].map((n,i)=>`<button class="tactic ${power===Boolean(i)?'active':''}" data-power="${i}" aria-pressed="${power===Boolean(i)}" ${busy||over?'disabled':''}>${i?'↗':'⊕'} ${n}</button>`).join(''):pitchTypes.map((p,i)=>`<button class="tactic ${selectedPitch===i?'active':''}" data-pitch="${i}" aria-pressed="${selectedPitch===i}" ${busy||over?'disabled':''}>${p.name}</button>`).join('');
+  $('tacticsRow').innerHTML=offense?['Contact','Power'].map((n,i)=>`<button class="tactic ${power===Boolean(i)?'active':''}" data-power="${i}" aria-pressed="${power===Boolean(i)}" ${['pitch','impact','contact'].includes(play.phase)||over?'disabled':''}>${n}</button>`).join(''):pitchTypes.map((p,i)=>`<button class="tactic ${selectedPitch===i?'active':''}" data-pitch="${i}" aria-pressed="${selectedPitch===i}" ${['pitch','impact','contact'].includes(play.phase)||over?'disabled':''}>${sentence(p.name)}</button>`).join('');
+  $('battingPanel').hidden=!offense;
+  $('swingFeedback').textContent=play.swung?sentence(play.feedback):incoming?(play.released?'Ball in flight':'Watch the windup'):result?sentence(play.event?.label):`${DIFFICULTIES.find(d=>d.key===preferences.difficulty).label} timing`;
+  $('swingFeedback').dataset.contact=play.swung?(play.quality>=.75?'good':play.quality>=.22?'fair':'miss'):'ready';
+  $('difficultySelect').value=preferences.difficulty;$('difficultySelect').disabled=busy&&!result;
+  $('autoContinue').checked=preferences.flow;
   $('stealBtn').disabled=!isIdle()||!game.isBatting||!game.state.bases[0]||game.state.bases[1];
   $('subBtn').disabled=!isIdle(); $('aimReset').hidden=true; $('aimReset').disabled=busy||paused;
   renderPitchZone();updateCameraUI();
 
 }
 function render() {
-  const s=game.state,p=play.batter&&['contact','result'].includes(play.phase)?play.batter:game.batter,opp=game.opponent, wins=s.results.filter(r=>r.win).length;
+  const s=game.state,p=play.batter&&['impact','contact','result'].includes(play.phase)?play.batter:game.batter,opp=game.opponent, wins=s.results.filter(r=>r.win).length;
   $('seasonLabel').textContent=`SEASON ${String(game.career?.season||1).padStart(2,'0')} / GAME ${String(s.game+1).padStart(2,'0')}`;
   $('recordChip').textContent=`${wins} W · ${s.results.length-wins} L`;
   $('awayBadge').textContent=opp.short[0];$('awayBadge').style.background=opp.color;
@@ -196,31 +217,31 @@ function render() {
   const ordinal=displayInning%100>=11&&displayInning%100<=13?'TH':({1:'ST',2:'ND',3:'RD'}[displayInning%10]||'TH');
   $('inningLabel').textContent=s.over?'FINAL':`${displayHalf?'▼':'▲'} ${displayInning}${ordinal}`;
   const displayOuts=play.event?.inningChanged&&['contact','result'].includes(play.phase)?3:play.replaying&&play.after?play.after.outs:s.outs;
-  $('outsLabel').textContent=`${displayOuts} OUT${displayOuts===1?'':'S'}`;$('gameLength').textContent=`${s.innings} INNINGS`;
+  $('outsLabel').textContent=`${displayOuts} out${displayOuts===1?'':'s'}`;$('gameLength').textContent=`${s.innings} innings`;
   $('balls').textContent=play.replaying&&play.after?play.after.balls:s.balls;$('strikes').textContent=play.replaying&&play.after?play.after.strikes:s.strikes;$('outs').textContent=displayOuts;
-  $('modeTag').textContent=s.over?'THAT’S A BALLGAME':game.isBatting?'YOU’RE BATTING':'YOU’RE PITCHING';
-  $('pitchInfo').textContent=play.velocity?`${pitchTypes[play.pitchType]?.name||'PITCH'} · ${play.velocity} MPH`:game.isBatting?`${power?'POWER':'CONTACT'} SWING`:`${pitchTypes[selectedPitch].name} · ${pitchTypes[selectedPitch].speed} MPH`;
+  $('modeTag').textContent=s.over?'Final':game.isBatting?'Batting':'Pitching';
+  $('pitchInfo').textContent=play.velocity?`${sentence(pitchTypes[play.pitchType]?.name||'Pitch')} · ${play.velocity} mph`:game.isBatting?`${power?'Power':'Contact'} swing`:`${sentence(pitchTypes[selectedPitch].name)} · ${pitchTypes[selectedPitch].speed} mph`;
   const displayBases=play.plan&&['contact','result'].includes(play.phase)?play.plan.displayBases:s.bases;
   [1,2,3].forEach((n,i)=>$('base'+n).classList.toggle('on',displayBases[i]));
   $('baseDiamond').setAttribute('aria-label',displayBases.some(Boolean)?`Runners on ${displayBases.map((v,i)=>v?['first','second','third'][i]:'').filter(Boolean).join(' and ')}`:'Bases empty');
-  $('batterName').textContent=p.name;$('batterPosition').textContent=`${p.pos} · RIGHT HANDED`;
-  $('playerNumber').textContent=String(p.id+1).padStart(2,'0');$('playerRole').textContent=game.isBatting?'YOUR HITTER':'VISITING HITTER';
+  $('batterName').textContent=p.name;$('batterPosition').textContent=`${p.pos} · Right handed`;
+  $('playerNumber').textContent=String(p.id+1).padStart(2,'0');$('playerRole').textContent=game.isBatting?'Your hitter':'Visiting hitter';
   $('matchupSide').textContent=`${s.half?'BOT':'TOP'} ${s.inning}`;
-  $('pitcherName').textContent=(play.pitcher&&['contact','result'].includes(play.phase)?play.pitcher:game.pitcher).name;
-  const stars=clamp(Math.round((p.contact+p.power)/40),1,5);$('playerStars').textContent='★'.repeat(stars)+'☆'.repeat(5-stars);
-  $('skillBars').innerHTML=[['CONTACT',p.contact],['POWER',p.power],['SPEED',p.speed]].map(([n,v])=>`<div class="skill-row"><span>${n}</span><div class="skill-track"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
+  $('pitcherName').textContent=(play.pitcher&&['impact','contact','result'].includes(play.phase)?play.pitcher:game.pitcher).name;
+  $('playerStars').textContent=`${Math.round((p.contact+p.power+p.speed)/3)} OVR`;
+  $('skillBars').innerHTML=[['Contact',p.contact],['Power',p.power],['Speed',p.speed]].map(([n,v])=>`<div class="skill-row"><span>${n}</span><div class="skill-track"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
   const length=Math.max(s.innings,s.inning);
   $('lineScore').innerHTML=`<table class="line-table"><thead><tr><th>CLUB</th>${Array.from({length},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th><th>H</th></tr></thead><tbody>${[0,1].map(t=>`<tr><td>${t?'NYK':opp.short}</td>${Array.from({length},(_,i)=>`<td>${s.lines[t][i]??'–'}</td>`).join('')}<td class="total">${s.score[t]}</td><td>${s.hits[t]}</td></tr>`).join('')}</tbody></table>`;
   const log=s.log.slice(0,7);$('playLog').replaceChildren(...(log.length?log.map(e=>{const el=document.createElement('p'),tag=document.createElement('b');tag.textContent=e.tag||'';el.append(tag,document.createTextNode(e.text));return el;}):[Object.assign(document.createElement('p'),{textContent:'The grass is cut. The crowd is ready. Let’s play ball.'})]));
   $('resultText').textContent=s.log[0]?.text||'Welcome to Knights Park. Your season starts here.';
   renderClub();renderLeague();renderControls();careerUI?.render();
-  $('resetSeasonBtn').textContent=game.career?'FRONT OFFICE ↗':'NEW SEASON ↻';
+  $('resetSeasonBtn').textContent=game.career?'Front office ↗':'New season ↻';
   if(play.phase==='ready')showOverlay(s.over?'FINAL SCORE':game.isBatting?'YOUR TURN AT THE PLATE':'TAKE THE MOUND',s.over?(s.score[1]>s.score[0]?'KNIGHTS WIN!':'FINAL OUT.'):game.isBatting?'WAIT FOR YOUR PITCH.':'PAINT THE CORNERS.',intro||s.over);
 }
 function renderClub() {
   const s=game.state;
   $('rosterTable').innerHTML=game.lineup.map((p,i)=>`<div class="roster-player"><span>${i+1}</span><div><b>${p.name}</b><small>${p.pos}</small></div><div class="ratings">${p.contact} / ${p.power}</div><div class="move-buttons"><button data-move="${i},-1" aria-label="Move ${p.name} up" ${s.started||i===0?'disabled':''}>▲</button><button data-move="${i},1" aria-label="Move ${p.name} down" ${s.started||i===8?'disabled':''}>▼</button></div></div>`).join('');
-  $('pitchingRoster').innerHTML=game.homePitchers.map(p=>`<div class="staff-player"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><span>${s.pitchers[1]===p.id?`${s.pitches[1]} PITCHES`:s.usedPitchers.includes(p.id)?'USED':'READY'}</span></div>`).join('');
+  $('pitchingRoster').innerHTML=game.homePitchers.map(p=>`<div class="staff-player"><div><b>${p.name}</b><small>Control ${p.control} · Velocity ${p.velocity}</small></div><span>${s.pitchers[1]===p.id?`${s.pitches[1]} PITCHES`:s.usedPitchers.includes(p.id)?'USED':'READY'}</span></div>`).join('');
   $('benchRoster').innerHTML=game.availableBench.map(p=>`<div class="bench-player"><div><b>${p.name}</b><small>${p.pos}</small></div><span>${p.contact} CON</span></div>`).join('')||'<p class="card-note">Everyone on the bench has entered this game.</p>';
 }
 function renderLeague() {
@@ -236,16 +257,23 @@ function frame(now) {
   if(!paused && !document.hidden && activeScreen==='game') {
     sessionTime+=dt;play.elapsed+=dt;
     if(play.phase==='pitch'){
-      const progress=play.elapsed/play.duration;
-      if(progress>=1.20||(play.taking&&progress>=1.04)||(play.swung&&progress>=Math.max(1.015,play.swingAt/play.duration+.02)))resolve();
-    } else if(play.phase==='contact'&&play.elapsed>=play.duration)presentResult();
+      const progress=pitchProgress(play);
+      if(!play.released&&progress>=0){play.released=true;tone('pitch');renderControls();}
+      if(progress>=1.20||(play.taking&&progress>=1.04)||(play.swung&&progress>=Math.max(1.015,(play.swingAt-play.windup)/play.duration+.02)))resolve();
+    } else if(play.phase==='impact'&&play.elapsed>=play.duration){play.phase='contact';play.elapsed=0;play.duration=play.fieldDuration;renderControls();}
+    else if(play.phase==='contact'&&play.elapsed>=play.duration)presentResult();
+    else if(play.phase==='result'&&preferences.flow&&!play.replaying&&!game.gameOver&&play.elapsed>=(play.plan?.camera==='field'?2400:1300)){
+      const changed=play.event?.inningChanged;continuePlay();
+      if(!changed&&game.isBatting)readyToBat();
+    }
   }
   if(activeScreen!=='game'||paused){requestAnimationFrame(frame);return;}
   const current=play, offense=current.phase==='ready'?game.isBatting:current.offense??game.isBatting;
-  const progress=current.phase==='pitch'?clamp(current.elapsed/current.duration,0,1.25):0;
-  const ball=current.phase==='pitch'?pitchPoint(progress,current.target,current.pitchType):null;
-  stadium.draw({time:reducedMotion?0:sessionTime,phase:current.phase,offense,progress,aim:null,ball,
-    swingProgress:current.swingAt>=0?clamp((current.phase==='pitch'?current.elapsed-current.swingAt:current.elapsed+200)/450,0,1):-1,
+  const progress=current.phase==='pitch'?clamp(pitchProgress(current),0,1.25):0;
+  const ball=current.phase==='pitch'&&current.released?pitchPoint(progress,current.target,current.pitchType):null;
+  stadium.draw({time:reducedMotion?0:sessionTime,phase:current.phase,offense,progress,windup:current.phase==='pitch'?clamp(current.elapsed/(current.windup||1),0,1):0,aim:null,ball,
+    hit:current.phase==='impact'?{progress:clamp(current.elapsed/current.duration,0,1)*.18,quality:current.event?.quality??.5}:null,
+    swingProgress:current.phase==='impact'?.42+clamp(current.elapsed/current.duration,0,1)*.55:current.swingAt>=0?clamp((current.phase==='pitch'?current.elapsed-current.swingAt:current.elapsed+200)/450,0,1):-1,
     view:cameraView(),bases:game.state.bases,
     playback:current.plan?.camera==='field'&&['contact','result'].includes(current.phase)?{...current.plan,progress:current.phase==='result'?1:clamp(current.elapsed/current.duration,0,1)}:null});
   requestAnimationFrame(frame);
@@ -253,6 +281,7 @@ function frame(now) {
 
 function mainAction(){
   if(paused||managementOpen||menuOpen||$('mainAction').disabled)return;
+  unlockAudio();
   if(play.phase==='result'){continuePlay();return;}
   if(game.gameOver){continueGame();return;}
   if(play.phase==='pitch'){swing();return;}
@@ -274,7 +303,7 @@ $('pitchZone').addEventListener('pointerdown',e=>{if(!isIdle()||game.isBatting)r
 $('pitchZone').addEventListener('pointermove',e=>{if(zonePointer===e.pointerId)locatePitch(e);});
 ['pointerup','pointercancel','lostpointercapture'].forEach(type=>$('pitchZone').addEventListener(type,()=>zonePointer=null));
 $('centerPitchBtn').onclick=()=>{if(!isIdle()||game.isBatting)return;aim={u:.5,v:.5};renderPitchZone();};
-$('fieldViewBtn').onclick=()=>{if(['pitch','contact'].includes(play.phase))return;fieldView=cameraView()!=='field';if(play.phase==='result'&&play.plan?.camera==='field')resetPlay();else renderControls();};
+$('fieldViewBtn').onclick=()=>{if(['pitch','impact','contact'].includes(play.phase))return;fieldView=cameraView()!=='field';if(play.phase==='result'&&play.plan?.camera==='field')resetPlay();else renderControls();};
 $('replayBtn').onclick=replayLast;$('skipReplayBtn').onclick=()=>{if(play.phase==='contact')presentResult();};
 $('tacticsRow').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.pitch!==undefined)selectedPitch=Number(b.dataset.pitch);if(b.dataset.power!==undefined)power=Boolean(Number(b.dataset.power));render();};
 $('rosterTable').onclick=e=>{const b=e.target.closest('[data-move]');if(!b||b.disabled)return;const [index,delta]=b.dataset.move.split(',').map(Number);if(game.reorder(index,delta)){persist();renderClub();}};
@@ -326,18 +355,18 @@ function openModal(title,body) {
 }
 function closeModal(){$('modalRoot').replaceChildren();syncPause();renderControls();lastFocus?.focus();}
 function openPause() {
-  openModal('TIME OUT.',`<p>The game is paused. Take a breath. The ballpark will be here.</p><button class="big-button" id="resumeBtn">BACK TO THE GAME →</button><p class="install-note">Your season saves after every play.</p>`);
+  openModal('Game paused',`<p>The game is paused. Take a breath. The ballpark will be here.</p><button class="big-button" id="resumeBtn">Back to game →</button><p class="install-note">Your season saves after every play.</p>`);
   $('resumeBtn').onclick=closeModal;
 }
 $('pauseBtn').onclick=openPause;
 $('helpBtn').onclick=()=>{
-  openModal('WELCOME TO THE CLUB.',`<h3>ON THE MOUND</h3><p>Use the separate strike-zone panel to locate your pitch, then tap Pitch. The outlined target is your aim; numbered dots show where actual pitches land. Pitcher control affects accuracy.</p><h3>AT THE PLATE</h3><p>Tap READY FOR PITCH. When the ball reaches your batter on the left, tap SWING or the field. Every contact switches to the whole field, where you can follow the ball and runners. CONTINUE starts the next play; REPLAY shows the last play again. There is no timing bar: watch the ball approach the plate and swing as it arrives. TAKE lets a pitch pass.</p><h3>YOUR CAREER</h3><p>Create a manager, take over the struggling Knights, and rebuild through the draft and trades in the Front Office. Finish twelve games to develop your players and enter the next season. Your manager and roster carry over.</p><p class="install-note">On iPhone: Share → Add to Home Screen. On Android: browser menu → Install app or Add to Home screen. Serve the game over HTTPS for offline play.</p><button class="big-button" id="letsPlay">LET’S PLAY BALL →</button>`);
+  openModal('Welcome to the club',`<h3>On the mound</h3><p>Use the separate strike-zone panel to locate your pitch, then tap Pitch. The outlined target is your aim; numbered dots show where actual pitches land. Pitcher control affects accuracy.</p><h3>At the plate</h3><p>Tap Start at-bat. When the ball reaches your batter on the left, tap Swing or the field. Every contact switches to the whole field, where you can follow the ball and runners. Continue starts the next play; Replay shows the last play again. Flow play advances automatically after a short break; turn it off to hold each result. Relaxed and All-Star change timing forgiveness. There is no timing bar: watch the ball approach the plate and swing as it arrives. Take pitch lets a pitch pass.</p><h3>Your career</h3><p>Create a manager, take over the struggling Knights, and rebuild through the draft and trades in the Front Office. Finish twelve games to develop your players and enter the next season. Your manager and roster carry over.</p><p class="install-note">On iPhone: Share → Add to Home Screen. On Android: browser menu → Install app or Add to Home screen. Serve the game over HTTPS for offline play.</p><button class="big-button" id="letsPlay">Let’s play ball →</button>`);
   $('letsPlay').onclick=closeModal;
 };
 $('rulesLink').onclick=()=>showScreen('rules');
 $('subBtn').onclick=()=>{
   if(!isIdle())return;
-  openModal('CALL TO THE DUGOUT',`<h3>FRESH ARM</h3>${game.availablePitchers.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>CONTROL ${p.control} · VELOCITY ${p.velocity}</small></div><button class="tiny-button" data-relief="${p.id}">IN</button></div>`).join('')||'<p>All relief pitchers have entered.</p>'}<h3>PINCH HIT FOR ${game.homeRoster[game.state.order[game.state.bats[1]%9]].name.toUpperCase()}</h3>${game.availableBench.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>${p.contact} CONTACT · ${p.power} POWER</small></div><button class="tiny-button" data-bench="${p.id}">IN</button></div>`).join('')||'<p>No unused bench players.</p>'}<p class="install-note">Replaced players cannot return until the next game.</p>`);
+  openModal('Make a substitution',`<h3>Relief pitchers</h3>${game.availablePitchers.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>Control ${p.control} · Velocity ${p.velocity}</small></div><button class="tiny-button" data-relief="${p.id}">Select</button></div>`).join('')||'<p>All relief pitchers have entered.</p>'}<h3>Pinch hit for ${game.homeRoster[game.state.order[game.state.bats[1]%9]].name.toUpperCase()}</h3>${game.availableBench.map(p=>`<div class="sub-item"><div><b>${p.name}</b><small>${p.contact} contact · ${p.power} power</small></div><button class="tiny-button" data-bench="${p.id}">Select</button></div>`).join('')||'<p>No unused bench players.</p>'}<p class="install-note">Replaced players cannot return until the next game.</p>`);
 };
 $('modalRoot').onclick=e=>{
   if(e.target===$('modalRoot')){closeModal();return;}
@@ -347,17 +376,20 @@ $('modalRoot').onclick=e=>{
 };
 $('resetSeasonBtn').onclick=()=>{
   if(game.career){showScreen('career');return;}
-  openModal('A FRESH START.',`<p>Start a new season? Your current season and scores will be cleared.</p><h3>GAME LENGTH</h3><select id="inningsChoice" aria-label="Innings per game"><option value="3">3 innings · Pocket game</option><option value="9">9 innings · Full baseball</option></select><div class="modal-actions"><button class="secondary-button" id="cancelReset">KEEP PLAYING</button><button class="big-button" id="confirmReset">NEW SEASON →</button></div>`);
+  openModal('Start a new season',`<p>Start a new season? Your current season and scores will be cleared.</p><h3>Game length</h3><select id="inningsChoice" aria-label="Innings per game"><option value="3">3 innings · Pocket game</option><option value="9">9 innings · Full baseball</option></select><div class="modal-actions"><button class="secondary-button" id="cancelReset">Keep playing</button><button class="big-button" id="confirmReset">New season →</button></div>`);
   $('inningsChoice').value=String(game.state.innings);$('cancelReset').onclick=closeModal;
   $('confirmReset').onclick=()=>{game.reset(Number($('inningsChoice').value));persist();closeModal();resetPlay(true);showScreen('game');};
 };
 function showSeasonResult() {
   const s=game.state,wins=s.results.filter(r=>r.win).length,rank=game.standings.findIndex(t=>t.id===0)+1;
-  openModal('SEASON IN THE BOOKS.',`<p style="font-size:26px;color:var(--gold);font-weight:bold">${wins} WINS · ${12-wins} LOSSES</p><p>Your Knights finish #${rank} in the Pixel League. Every pitch, every swing — that was your season.</p><button id="seasonLeague" class="big-button">VIEW THE SEASON →</button>`);
-  if(game.career){$('seasonLeague').textContent='OFFSEASON →';}
+  openModal('Season complete',`<p style="font-size:26px;color:var(--gold);font-weight:bold">${wins} WINS · ${12-wins} LOSSES</p><p>Your Knights finish #${rank} in the Dugout League. Every pitch, every swing — that was your season.</p><button id="seasonLeague" class="big-button">View the season →</button>`);
+  if(game.career){$('seasonLeague').textContent='Offseason →';}
   $('seasonLeague').onclick=()=>{closeModal();showScreen(game.career?'career':'league');};
 }
-$('soundToggle').onclick=()=>{muted=!muted;$('soundToggle').textContent=muted?'♩':'♫';$('soundToggle').setAttribute('aria-pressed',String(!muted));$('soundToggle').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');};
+$('soundToggle').onclick=()=>{muted=!muted;preferences.sound=!muted;savePreferences();unlockAudio();$('soundToggle').textContent=muted?'♩':'♫';$('soundToggle').setAttribute('aria-pressed',String(!muted));$('soundToggle').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');};
+$('difficultySelect').onchange=()=>{if(['pitch','impact','contact'].includes(play.phase))return;preferences.difficulty=$('difficultySelect').value;savePreferences();renderControls();};
+$('autoContinue').onchange=()=>{preferences.flow=$('autoContinue').checked;if(play.phase==='result')play.elapsed=0;savePreferences();renderControls();};
+$('soundToggle').textContent=muted?'♩':'♫';$('soundToggle').setAttribute('aria-pressed',String(!muted));$('soundToggle').setAttribute('aria-label',muted?'Turn sound on':'Turn sound off');
 let spaceHeld=false;
 function trapFocus(e,root){
   if(e.key!=='Tab')return;const f=[...root.querySelectorAll('button:not(:disabled),select,input,[tabindex="0"]')].filter(x=>x.getClientRects().length),a=f[0],z=f[f.length-1];
@@ -401,5 +433,5 @@ careerUI=new CareerUI({
 for(const id of ['screen-career','screen-roster','screen-league','screen-rules'])$('managementContent').append($(id));
 document.body.dataset.screen='game';render();requestAnimationFrame(frame);activeScreen='title';careerUI.showTitle();
 if('serviceWorker' in navigator && location.protocol!=='file:') {
-  navigator.serviceWorker.register('./sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{$('offlineStatus').textContent='OFFLINE READY · TAKE THE GAME ANYWHERE';}).catch(()=>{$('offlineStatus').textContent='PLAY ONLINE · PROGRESS SAVES HERE';});
+  navigator.serviceWorker.register('./sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{$('offlineStatus').textContent='Offline ready · Play anywhere';}).catch(()=>{$('offlineStatus').textContent='Play online · Progress saves here';});
 }

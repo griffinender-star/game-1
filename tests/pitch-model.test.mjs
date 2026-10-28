@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PITCH_GEOMETRY, PITCH_TYPES, normalizeLocation, locationToTarget, targetToLocation, pitchPoint, swingQuality, samplePitch } from '../pitch-model.js';
+import { PITCH_GEOMETRY, PITCH_TYPES, DIFFICULTIES, normalizeLocation, locationToTarget, targetToLocation, pitchPoint, swingQuality, samplePitch } from '../pitch-model.js';
 
 const near = (a, b, epsilon = 1e-9) => assert.ok(Math.abs(a - b) <= epsilon, `${a} differs from ${b}`);
 const seeded = seed => () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
@@ -56,6 +56,55 @@ test('player contact modestly widens forgiveness without moving the physical con
   assert.equal(swingQuality(1, 37).quality, 1); assert.equal(swingQuality(1, 99).quality, 1);
   assert.ok(swingQuality(.9, 99).quality > swingQuality(.9, 37).quality);
   assert.ok(swingQuality(.7, 99).quality === 0, 'Contact rating cannot rescue a far-too-early swing');
+});
+
+test('standard timing has a stable sweet spot and smooth, useful contact around arrival', () => {
+  for (const progress of [.978, .985, 1, 1.015, 1.022]) {
+    near(swingQuality(progress).quality, 1);
+    assert.equal(swingQuality(progress).feedback, 'PERFECT CONTACT');
+  }
+  assert.ok(swingQuality(.95).quality >= .7);
+  assert.ok(swingQuality(.9).quality > .35 && swingQuality(.9).quality < .55);
+  assert.ok(swingQuality(.86).quality < .3);
+  assert.equal(swingQuality(.78).quality, 0);
+  assert.ok(swingQuality(1.17).quality < .22);
+  // Adjacent frames near the sweet spot should not cause an abrupt quality cliff.
+  assert.ok(swingQuality(.977).quality > .999);
+});
+
+test('all timing settings fall monotonically away from the same visible plate crossing', () => {
+  for (const { key } of DIFFICULTIES) for (const contact of [0, 37, 65, 99]) {
+    let previous = 1;
+    for (let step = 0; step <= 30; step++) {
+      const distance = step / 100;
+      const early = swingQuality(1 - distance, contact, key);
+      const late = swingQuality(1 + distance, contact, key);
+      near(early.quality, late.quality);
+      assert.ok(early.quality <= previous + 1e-12);
+      previous = early.quality;
+      if (distance >= .25) assert.equal(early.quality, 0);
+      if (early.feedback.includes('EARLY')) assert.equal(early.passedPlate, false);
+      if (late.feedback.includes('LATE')) assert.equal(late.passedPlate, true);
+    }
+  }
+});
+
+test('difficulty widens forgiveness without moving arrival or concealing early and late misses', () => {
+  assert.ok(Object.isFrozen(DIFFICULTIES) && DIFFICULTIES.every(Object.isFrozen));
+  assert.deepEqual(DIFFICULTIES.map(option => option.key), ['relaxed', 'standard', 'allstar']);
+  for (const progress of [.9, 1.1]) {
+    const relaxed = swingQuality(progress, 65, 'relaxed').quality;
+    const standard = swingQuality(progress, 65, 'standard').quality;
+    const allstar = swingQuality(progress, 65, 'allstar').quality;
+    assert.ok(relaxed > standard && standard > allstar);
+  }
+  for (const { key } of DIFFICULTIES) {
+    assert.equal(swingQuality(1, 37, key).quality, 1);
+    assert.equal(swingQuality(1, 99, key).quality, 1);
+    assert.equal(swingQuality(.6, 65, key).feedback, 'TOO EARLY');
+    assert.equal(swingQuality(1.4, 65, key).feedback, 'TOO LATE');
+  }
+  assert.deepEqual(swingQuality(.9, 65, 'invalid'), swingQuality(.9, 65, 'standard'));
 });
 
 test('a sampled pitch records intended and actual locations consistently without mutating aim', () => {
